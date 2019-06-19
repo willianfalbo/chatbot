@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\Chatbot.Model\Chatbot.Model.csproj"/>
+    <ProjectReference Include="..\Chatbot.Common\Chatbot.Common.csproj"/>
+    <ProjectReference Include="..\Chatbot.Service\Chatbot.Service.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.1"/>
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+</Project>

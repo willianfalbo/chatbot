@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Chatbot.API.Extensions;
-using Chatbot.Model.Bot;
+using Chatbot.API.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -83,7 +83,7 @@ namespace Microsoft.BotBuilderSamples
                 var promptOptions = new PromptOptions
                 {
                     Prompt = MessageFactory.Text("Qual é o seu primeiro nome?"),
-                    RetryPrompt = MessageFactory.Text("Vamos tentar novamente! O primeiro nome precisa ter apenas letras, ao menos 3 até 20 letras.")
+                    RetryPrompt = MessageFactory.Text("O primeiro nome precisa ter apenas letras, contendo entre 3 e 20 caracteres.")
                 };
                 // Ask the user to enter their name.
                 return await stepContext.PromptAsync(NAME_VALIDATION, promptOptions, cancellationToken);
@@ -91,7 +91,7 @@ namespace Microsoft.BotBuilderSamples
             else
             {
                 //tells user that we can't continue chatting
-                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(GetDisappointedAnimationCard().ToAttachment()), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(GetDisagreementCard().ToAttachment()), cancellationToken);
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Até a próxima!"), cancellationToken);
 
                 // Exit the dialog, returning the collected user information.
@@ -143,7 +143,7 @@ namespace Microsoft.BotBuilderSamples
                 var promptOptions = new PromptOptions
                 {
                     Prompt = MessageFactory.Text("Quantos anos você tem?"),
-                    RetryPrompt = MessageFactory.Text("Mais uma vez! Você precisa ter 18 ou até 120 anos.")
+                    RetryPrompt = MessageFactory.Text("Você precisa estar entre 18 até 120 anos")
                 };
                 // Ask the user to enter their age.
                 return await stepContext.PromptAsync(AGE_VALIDATION, promptOptions, cancellationToken);
@@ -182,24 +182,17 @@ namespace Microsoft.BotBuilderSamples
         }
         #endregion
 
-        private AnimationCard GetDisappointedAnimationCard()
+        private ThumbnailCard GetDisagreementCard()
         {
-            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/disappointed_giphy.gif";
+            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/avatar/dontWorry.png";
 
-            var animationCard = new AnimationCard
+            var card = new ThumbnailCard
             {
-                Title = "Que pena!",
-                Subtitle = "Eu só consigo dar andamento se você concordar...",
-                Media = new List<MediaUrl>
-                {
-                    new MediaUrl()
-                    {
-                        Url = imageUrl,
-                    },
-                },
+                Title = "Se precisar de mim é só voltar!",
+                Images = new List<CardImage>() { new CardImage(imageUrl) },
             };
 
-            return animationCard;
+            return card;
         }
 
         #region Validators
@@ -216,7 +209,7 @@ namespace Microsoft.BotBuilderSamples
                 var name = promptContext.Recognized.Value?.Trim();
                 //check if the string has a minimal and if it contains only characters
                 if (name.Length >= 3 && name.Length <= 20)
-                    if (name.Equals(name?.Letters(), true))
+                    if (name.IsNameValid())
                         valid = true;
             }
             return await Task.FromResult(valid);

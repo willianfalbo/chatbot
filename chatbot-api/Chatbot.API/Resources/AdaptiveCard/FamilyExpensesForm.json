@@ -1,0 +1,101 @@
+{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "Container",
+            "style": "emphasis",
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "horizontalAlignment": "Center",
+                    "size": "Medium",
+                    "weight": "Bolder",
+                    "text": "GASTOS FAMILIARES MENSAIS"
+                }
+            ],
+            "bleed": true
+        },
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "Input.Number",
+                            "id": "FoodAndBasicCare",
+                            "validation": {
+                                "necessity": "RequiredWithVisualCue"
+                            },
+                            "placeholder": "Alimentação/Higiene/Limpeza"
+                        },
+                        {
+                            "type": "Input.Number",
+                            "id": "Health",
+                            "validation": {
+                                "necessity": "RequiredWithVisualCue"
+                            },
+                            "placeholder": "Saúde (remédios, plano de saúde, médicos)"
+                        },
+                        {
+                            "type": "Input.Number",
+                            "id": "Education",
+                            "validation": {
+                                "necessity": "RequiredWithVisualCue"
+                            },
+                            "placeholder": "Educação"
+                        },
+                        {
+                            "type": "Input.Number",
+                            "id": "RentalAndHousing",
+                            "validation": {
+                                "necessity": "RequiredWithVisualCue"
+                            },
+                            "placeholder": "Aluguel/Condomínio/Prestação da casa própria"
+                        },
+                        {
+                            "type": "Input.Number",
+                            "id": "HousingRelatedBills",
+                            "validation": {
+                                "necessity": "RequiredWithVisualCue"
+                            },
+                            "placeholder": "Água/Luz/Telefone/Gás"
+                        },
+                        {
+                            "type": "Input.Number",
+                            "id": "OtherExpenses",
+                            "placeholder": "Outros Gastos"
+                        }
+                    ],
+                    "width": 2
+                },
+                {
+                    "type": "Column",
+                    "horizontalAlignment": "Center",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "horizontalAlignment": "Center",
+                            "spacing": "None",
+                            "url": "http://localhost:3979/images/avatar/outOfMoney.png",
+                            "size": "Large",
+                            "altText": ""
+                        }
+                    ],
+                    "width": 1
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "Enviar",
+            "data": {
+                "useAdaptiveCardPromptInWaterfallDialog": true
+            }
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.0"
+}

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.Model.Bot;
+using Chatbot.API.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -54,7 +54,7 @@ namespace Microsoft.BotBuilderSamples
             // check if user has given the expected option
             if (string.IsNullOrWhiteSpace(profile.UserOption) && !string.IsNullOrWhiteSpace(input))
             {
-                var option = UserPreference.ChatbotOptions().FirstOrDefault(opt => opt.Equals(input, true));
+                var option = UserPreference.ChatbotOptions().FirstOrDefault(opt => opt.IsEqual(input));
                 if (option != null)
                     profile.UserOption = option;
             }

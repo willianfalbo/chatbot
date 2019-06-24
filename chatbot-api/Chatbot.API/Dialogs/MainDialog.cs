@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Chatbot.API.Extensions;
 using Chatbot.Common.Interfaces;
-using Chatbot.Model.Bot;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Extensions.Configuration;

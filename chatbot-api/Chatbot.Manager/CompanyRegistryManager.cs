@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Chatbot.Common.Interfaces;
 using Chatbot.Common.Extensions;
-using Chatbot.Model.Bot;
 using Chatbot.Model.Manager;
 using Chatbot.Service;
 
@@ -32,7 +31,7 @@ namespace Chatbot.Manager
             var response = await _receitaService.SearchForCnpj(cnpj);
 
             if (!response.HasError && response?.Content?.Status?.ToUpper() == "ERROR")
-                return new ManagerResponse<CompanyRegistry>(response?.Content?.Message);
+                return new ManagerResponse<CompanyRegistry>(response?.Content?.Message); //TODO: wrapped up this into the Auto Mapper
             else if (response.HasError)
                 return new ManagerResponse<CompanyRegistry>(response?.ErrorMessage);
             else

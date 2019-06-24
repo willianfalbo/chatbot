@@ -1,4 +1,4 @@
-namespace Chatbot.Model.Bot
+namespace Chatbot.API.Models
 {
     public static class UserHelpOption
     {

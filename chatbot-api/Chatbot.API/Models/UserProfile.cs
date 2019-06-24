@@ -1,7 +1,5 @@
-﻿namespace Chatbot.Model.Bot
+﻿namespace Chatbot.API.Models
 {
-    using System.Collections.Generic;
-
     public class UserProfile
     {
         public string Name { get; set; }

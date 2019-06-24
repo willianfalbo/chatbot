@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -52,17 +51,17 @@ namespace Chatbot.Common.Extensions
         {
             var allowedStrings = new string(allowChars?.Distinct()?.Where(i => AllowedChars().Contains(i))?.ToArray());
             allowedStrings = allowedStrings?.Replace("\\", "\\\\"); // replace reserved character in regex
-            return Regex.Replace(source, $"[^0-9{allowedStrings}]", string.Empty);
+            return Regex.Replace(source, $"[^\\d{allowedStrings}]", string.Empty);
         }
 
-        /// <summary>Get all the letters of the specified string.</summary>
+        /// <summary>Get all the letters of the specified string. It also includes accented characters.</summary>
         /// <param name="allowChar">To enable specific range of characters.</param>
-        /// <returns>Output example: simpledashedstring (17simple-dashed-string)</returns>
+        /// <returns>Output example: Adaptação (Adaptação 51 !@#$%^))</returns>
         public static string Letters(this string source, params char[] allowChars)
         {
             var allowedStrings = new string(allowChars?.Distinct()?.Where(i => AllowedChars().Contains(i))?.ToArray());
             allowedStrings = allowedStrings?.Replace("\\", "\\\\"); // replace reserved character in regex
-            return Regex.Replace(source, $"[^a-zA-Z{allowedStrings}]", string.Empty);
+            return Regex.Replace(source, string.Concat("[^\\p{L}", allowedStrings, "]"), string.Empty);
         }
 
         /// <summary>Get all the letters and Digits of the specified string.</summary>
@@ -72,7 +71,7 @@ namespace Chatbot.Common.Extensions
         {
             var allowedStrings = new string(allowChars?.Distinct()?.Where(i => AllowedChars().Contains(i))?.ToArray());
             allowedStrings = allowedStrings?.Replace("\\", "\\\\"); // replace reserved character in regex
-            return Regex.Replace(source, $"[^0-9a-zA-Z{allowedStrings}]", string.Empty);
+            return Regex.Replace(source, string.Concat("[^\\d\\p{L}", allowedStrings, "]"), string.Empty);
         }
 
         /// <summary>Mask the current creditcard number for public display in an interface.</summary>
@@ -92,22 +91,13 @@ namespace Chatbot.Common.Extensions
 
         /// <summary>Compare two strings and ignore Case Sensitive (CS), Accent Sensitive (AS) or Diacritics.</summary>
         /// <param name="item">The target string to compare.</param>
-        /// <param name="ignoreCaseAndAccent">true for ignoring Case Sensitive (CS), Accent Sensitive (AS) or Diacritics.</param>
         /// <returns>true for matched string; otherwise, false.</returns>
-        public static bool Equals(this string source, string item, bool ignoreCaseAndAccent)
+        public static bool IsEqual(this string source, string item)
         {
-            if (ignoreCaseAndAccent)
-            {
-                var compareInfo = Thread.CurrentThread.CurrentUICulture.CompareInfo;
-                // ignore case sensitive and accent sensitive (diacritics)
-                var options = CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
-                return compareInfo.Compare(source, item, options) == 0;
-            }
-            else
-            {
-                // use the default framework 
-                return source.Equals(item);
-            }
+            var compareInfo = Thread.CurrentThread.CurrentUICulture.CompareInfo;
+            // ignore case sensitive and accent sensitive (diacritics)
+            var options = CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace;
+            return compareInfo.Compare(source, item, options) == 0;
         }
 
         /// <summary>Convert the string to Title Case.</summary>
@@ -119,7 +109,7 @@ namespace Chatbot.Common.Extensions
         /// <returns>true for valid json schema; otherwise, false.</returns>
         public static bool IsJsonSchema(this string source)
         {
-            if(string.IsNullOrWhiteSpace(source))
+            if (string.IsNullOrWhiteSpace(source))
                 return false;
 
             try
@@ -127,10 +117,15 @@ namespace Chatbot.Common.Extensions
                 JsonConvert.DeserializeObject(source);
                 return true;
             }
-            catch (Exception ex)
+            catch //(Exception ex)
             {
                 return false;
             }
         }
+
+        /// <summary>Check if the provided name contains only valid letters accented ones.</summary>
+        /// <returns>true for valid json schema; otherwise, false</returns>
+        public static bool IsNameValid(this string source) =>
+            source.IsEqual(source?.Letters(' '));
     }
 }

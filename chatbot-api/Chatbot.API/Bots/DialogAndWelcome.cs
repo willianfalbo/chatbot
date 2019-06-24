@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.Model.Bot;
+using Chatbot.API.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -44,10 +44,10 @@ namespace Microsoft.BotBuilderSamples
         {
             var response = turnContext.Activity.CreateReply();
 
-            var card = new ThumbnailCard();
-            card.Title = "Olá, eu sou o BenicioBot!";
-            card.Text = @"Seja bem-vindo, eu sou o novo Assistente Virtual da Casa do Crédito.";
-            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/avatar_chatbot.png";
+            var card = new HeroCard();
+            // card.Title = "Olá, eu sou o BenicioBot!";
+            // card.Text = @"Seja bem-vindo, eu sou o novo Assistente Virtual da Casa do Crédito.";
+            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/avatar/greeting.png";
             card.Images = new List<CardImage>() { new CardImage(imageUrl) };
 
             response.Attachments = new List<Attachment>() { card.ToAttachment() };
@@ -58,15 +58,15 @@ namespace Microsoft.BotBuilderSamples
         private async Task SendBotDutiesAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var response = turnContext.Activity.CreateReply();
-            response.Text = "A minha função é ajudá-lo a obter o seu microcrédito de modo interativo.";
-
+            response.Text = "Seja bem-vindo! Eu sou o novo Assistente Virtual da Casa do Crédito.";
             await turnContext.SendActivityAsync(response, cancellationToken);
         }
 
         private async Task SendBotDetailsAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var response = turnContext.Activity.CreateReply();
-            response.Text = "Para ser mais claro, eu consigo coletar o seu pedido através da nossa conversa e, enviar diretamente para a nossa equipe, que fará a analise do seu caso.";
+            response.Text = "A minha função é ajudá-lo a obter o seu microcrédito de modo interativo.";
+            // response.Text = "Para ser mais claro, eu consigo coletar o seu pedido através da nossa conversa e, enviar diretamente para a nossa equipe, que fará a analise do seu caso.";
 
             await turnContext.SendActivityAsync(response, cancellationToken);
         }
@@ -76,7 +76,7 @@ namespace Microsoft.BotBuilderSamples
             var response = turnContext.Activity.CreateReply();
 
             var card = new ThumbnailCard();
-            card.Text = "Como eu posso ajudá-lo?";
+            card.Text = "Como eu posso te ajudar?";
             card.Buttons =
                 UserPreference.ChatbotOptions().Select(option =>
                     new CardAction(

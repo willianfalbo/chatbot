@@ -1,0 +1,251 @@
+{
+    "type": "AdaptiveCard",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "horizontalAlignment": "Left",
+                            "weight": "Bolder",
+                            "color": "Accent",
+                            "text": "**RENDA MENSAL DA EMPRESA**"
+                        },
+                        {
+                            "type": "Container",
+                            "spacing": "None",
+                            "style": "emphasis",
+                            "items": [
+                                {
+                                    "type": "ColumnSet",
+                                    "horizontalAlignment": "Left",
+                                    "spacing": "None",
+                                    "columns": [
+                                        {
+                                            "type": "Column",
+                                            "horizontalAlignment": "Left",
+                                            "spacing": "None",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "horizontalAlignment": "Left",
+                                                    "spacing": "None",
+                                                    "text": "Total da renda",
+                                                    "wrap": true
+                                                }
+                                            ],
+                                            "width": "auto"
+                                        },
+                                        {
+                                            "type": "Column",
+                                            "items": [
+                                                {
+                                                    "type": "TextBlock",
+                                                    "spacing": "None",
+                                                    "weight": "Bolder",
+                                                    "text": "{{MonthlyIncome}}"
+                                                }
+                                            ],
+                                            "width": "auto"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "bleed": true
+                        },
+                        {
+                            "type": "TextBlock",
+                            "horizontalAlignment": "Left",
+                            "weight": "Bolder",
+                            "text": "Total geral da renda mensal"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "size": "Medium",
+                            "weight": "Bolder",
+                            "color": "Good",
+                            "text": "{{TotalMonthlyIncome}}"
+                        }
+                    ],
+                    "width": 3
+                },
+                {
+                    "type": "Column",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "url": "http://localhost:3979/images/avatar/money.png",
+                            "size": "Large",
+                            "altText": ""
+                        }
+                    ],
+                    "width": 2
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "spacing": "None",
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "color": "Accent",
+                    "text": "**RENDA MENSAL DA FAMÍLIA**"
+                }
+            ]
+        },
+        {
+            "type": "Container",
+            "horizontalAlignment": "Left",
+            "spacing": "None",
+            "style": "emphasis",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "spacing": "None",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "horizontalAlignment": "Left",
+                            "spacing": "None",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "horizontalAlignment": "Left",
+                                    "spacing": "None",
+                                    "weight": "Bolder",
+                                    "text": "MEMBRO"
+                                }
+                            ],
+                            "width": 2
+                        },
+                        {
+                            "type": "Column",
+                            "spacing": "None",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "horizontalAlignment": "Left",
+                                    "spacing": "None",
+                                    "weight": "Bolder",
+                                    "text": "FONTE DE RENDA"
+                                }
+                            ],
+                            "width": 2
+                        },
+                        {
+                            "type": "Column",
+                            "spacing": "None",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "spacing": "None",
+                                    "weight": "Bolder",
+                                    "text": "VLR MENSAL"
+                                }
+                            ],
+                            "width": 1
+                        }
+                    ]
+                }
+            ],
+            "bleed": true
+        },
+        {{#each FamilyIncomes}}
+        {
+            "type": "ColumnSet",
+            "id": "listOfFamilyIncomes",
+            "separator": true,
+            "columns": [
+                {
+                    "type": "Column",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "size": "Small",
+                            "text": "{{this.PersonsName}}",
+                            "wrap": true
+                        }
+                    ],
+                    "width": 2
+                },
+                {
+                    "type": "Column",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "horizontalAlignment": "Left",
+                            "size": "Small",
+                            "text": "{{this.Source}}",
+                            "wrap": true
+                        }
+                    ],
+                    "width": 2
+                },
+                {
+                    "type": "Column",
+                    "spacing": "None",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "size": "Small",
+                            "text": "{{this.Value}}",
+                            "wrap": true
+                        }
+                    ],
+                    "width": 1
+                }
+            ]
+        },
+        {{/each}}
+        {
+            "type": "Container",
+            "horizontalAlignment": "Left",
+            "style": "emphasis",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "horizontalAlignment": "Left",
+                    "spacing": "None",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "horizontalAlignment": "Left",
+                            "spacing": "None",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "horizontalAlignment": "Left",
+                                    "spacing": "None",
+                                    "text": "Total da renda familiar",
+                                    "wrap": true
+                                }
+                            ],
+                            "width": "auto"
+                        },
+                        {
+                            "type": "Column",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "weight": "Bolder",
+                                    "text": "{{TotalFamilyIncome}}"
+                                }
+                            ],
+                            "width": "auto"
+                        }
+                    ]
+                }
+            ],
+            "bleed": true
+        }
+    ],
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.0"
+}

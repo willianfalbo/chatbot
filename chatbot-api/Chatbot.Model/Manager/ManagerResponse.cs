@@ -15,6 +15,11 @@ namespace Chatbot.Model.Manager
 
         public ManagerResponse(List<string> errorMessages)
         {
+            if (errorMessages is null)
+            {
+                throw new System.ArgumentNullException(nameof(errorMessages));
+            }
+
             HasError = true;
             Errors = errorMessages.Select(error => new ErrorItem(error)).ToList();
         }
@@ -28,7 +33,7 @@ namespace Chatbot.Model.Manager
         public ManagerResponse(List<ErrorItem> errorItems)
         {
             HasError = true;
-            Errors = errorItems;
+            Errors = errorItems ?? throw new System.ArgumentNullException(nameof(errorItems));
         }
 
         public T Value { get; }

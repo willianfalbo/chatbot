@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Chatbot.Model.Bot
+namespace Chatbot.API.Models
 {
     // contains information about the user state (used when they first start chatting)
     public class UserPreference

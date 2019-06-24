@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.Model.Bot;
+using Chatbot.API.Models;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
 using System.IO;
@@ -11,6 +11,7 @@ using Microsoft.Bot.Schema;
 using Chatbot.Model.Manager;
 using Newtonsoft.Json;
 using System.Linq;
+using Chatbot.API.Models.Util;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -33,7 +34,7 @@ namespace Microsoft.BotBuilderSamples
 
             AddDialog(new TextPrompt(CNPJ_VALIDATION, CnpjPromptValidatorAsync));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
-            AddDialog(new UserSocioEconomicDialog(_companyRegistryManager, _userState, _conversationState));
+            AddDialog(new UserSocioEconomicDialog(_userState, _conversationState));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -101,7 +102,7 @@ namespace Microsoft.BotBuilderSamples
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(cardAttachment),
-                RetryPrompt = MessageFactory.Text("Por favor, Verifique os campos obrigatórios!")
+                RetryPrompt = MessageFactory.Text("Por favor, verifique os campos obrigatórios e clique em \"Confirmar\"")
             };
             return await stepContext.PromptAsync(nameof(CustomAdaptiveCardPrompt), promptOptions, cancellationToken);
         }
@@ -109,14 +110,13 @@ namespace Microsoft.BotBuilderSamples
         private async Task<DialogTurnResult> StartUserSocioEconomicDialogStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var userCompany = (UserCompany)stepContext.Values[USER_COMPANY_STEP];
-            userCompany = JsonConvert.DeserializeObject<UserCompany>(stepContext.Result?.ToString()?.Trim());
+            userCompany = JsonConvert.DeserializeObject<UserCompany>(stepContext.Result?.ToString());
 
             // save the User Company data into the Conversation State
             var conversationStateAccessors = _conversationState.CreateProperty<UserCompany>(nameof(UserCompany));
             await conversationStateAccessors.SetAsync(stepContext.Context, userCompany, cancellationToken);
 
             await stepContext.Context.SendActivityAsync(MessageFactory.Text("Muito obrigado"), cancellationToken);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Vamos começar a próxima etapa"), cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserSocioEconomicDialog), null, cancellationToken);
@@ -143,11 +143,11 @@ namespace Microsoft.BotBuilderSamples
                 CorSituacao =
                     company?.Status == null ?
                         "Warning" :
-                        (company.Status.Equals("OK", true) ? "Good" : "Warning"),
+                        (company.Status.IsEqual("OK") ? "Good" : "Warning"),
                 Endereco =
                     company?.CompanyAddress == null ?
                         string.Empty : (
-                        company.CompanyAddress.Equals(new CompanyRegistry().CompanyAddress, true) ?
+                        company.CompanyAddress.IsEqual(new CompanyRegistry().CompanyAddress) ?
                             string.Empty :
                             $"{company?.CompanyAddress?.Street}, {company?.CompanyAddress?.Number} - {company?.CompanyAddress?.District}, {company?.CompanyAddress?.City} - {company?.CompanyAddress?.State}, {company?.CompanyAddress?.PostalCode}"
                         ),
@@ -172,7 +172,7 @@ namespace Microsoft.BotBuilderSamples
             {
                 var cnpj = promptContext.Recognized.Value?.Trim()?.Replace('–', '-');
 
-                if (cnpj.Equals(cnpj?.Digits('.', '/', '-'), true))
+                if (cnpj.IsEqual(cnpj?.Digits('.', '/', '-')))
                     if (cnpj.IsCnpjValid())
                         valid = true;
             }
@@ -189,10 +189,10 @@ namespace Microsoft.BotBuilderSamples
                 {
                     var form = JsonConvert.DeserializeObject<UserCompany>(promptContext.Recognized.Value);
 
-                    if (!string.IsNullOrEmpty(form?.CompanyName?.Trim()))
-                        if (!string.IsNullOrEmpty(form?.CompanyAddress?.Trim()))
-                            if (!string.IsNullOrEmpty(form?.CompanyPartners?.Trim()))
-                                valid = true;
+                    var result = ModelValidator.IsValid(form);
+
+                    if (!result.HasError)
+                        valid = true;
                 }
             }
 

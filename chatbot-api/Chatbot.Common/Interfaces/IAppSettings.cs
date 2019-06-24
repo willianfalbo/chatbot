@@ -4,5 +4,6 @@
     {
         string ReceitaServiceApiUrl { get; }
         string ReceitaServiceToken { get; }
+        string DefaultRootUrl { get; }
     }
 }

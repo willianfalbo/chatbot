@@ -6,7 +6,6 @@ using Chatbot.API.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
 
@@ -19,16 +18,16 @@ namespace Microsoft.BotBuilderSamples
         private const string NAME_VALIDATION = "NAME_VALIDATION";
         private const string EMAIL_VALIDATION = "EMAIL_VALIDATION";
         private const string AGE_VALIDATION = "AGE_VALIDATION";
-        private readonly IConfiguration _configuration;
+        private readonly IAppSettings _appSettings;
         private readonly ICompanyRegistryManager _companyRegistryManager;
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         #endregion 
 
-        public UserProfileDialog(IConfiguration configuration, ICompanyRegistryManager companyRegistryManager, UserState userState, ConversationState conversationState)
+        public UserProfileDialog(IAppSettings appSettings, ICompanyRegistryManager companyRegistryManager, UserState userState, ConversationState conversationState)
             : base(nameof(UserProfileDialog))
         {
-            this._configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
+            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
             this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
             this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
@@ -37,7 +36,7 @@ namespace Microsoft.BotBuilderSamples
             AddDialog(new TextPrompt(EMAIL_VALIDATION, EmailPromptValidatorAsync));
             AddDialog(new NumberPrompt<int>(AGE_VALIDATION, AgePromptValidatorAsync));
             AddDialog(new CustomConfirmPrompt(nameof(CustomConfirmPrompt)));
-            AddDialog(new UserCompanyDialog(_companyRegistryManager, _userState, _conversationState));
+            AddDialog(new UserCompanyDialog(_appSettings, _userState, _conversationState, _companyRegistryManager));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -184,7 +183,7 @@ namespace Microsoft.BotBuilderSamples
 
         private ThumbnailCard GetDisagreementCard()
         {
-            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/avatar/dontWorry.png";
+            var imageUrl = $"{_appSettings.DefaultRootUrl}/images/avatar/dontWorry.png";
 
             var card = new ThumbnailCard
             {

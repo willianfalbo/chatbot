@@ -77,7 +77,7 @@
                             "type": "Image",
                             "horizontalAlignment": "Center",
                             "spacing": "None",
-                            "url": "http://localhost:3979/images/avatar/outOfMoney.png",
+                            "url": "{{DefaultRootUrl}}/images/avatar/outOfMoney.png",
                             "size": "Large",
                             "altText": ""
                         }

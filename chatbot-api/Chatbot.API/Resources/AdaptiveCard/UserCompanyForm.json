@@ -52,7 +52,7 @@
                     "items": [
                         {
                             "type": "Image",
-                            "url": "http://localhost:3979/images/avatar/doubt.png",
+                            "url": "{{DefaultRootUrl}}/images/avatar/doubt.png",
                             "altText": ""
                         }
                     ],

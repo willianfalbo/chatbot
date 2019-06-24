@@ -11,6 +11,7 @@ using Microsoft.Bot.Schema;
 using Chatbot.API.Models.Util;
 using Newtonsoft.Json;
 using Chatbot.Common.Extensions;
+using Chatbot.Common.Interfaces;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -19,13 +20,15 @@ namespace Microsoft.BotBuilderSamples
         #region Attributes
         private const string USER_SOCIOECONOMIC_STEP = "USER_SOCIOECONOMIC_STEP";
         private const string MONTHLY_INCOME_VALIDATION = "MONTHLY_INCOME_VALIDATION";
+        private readonly IAppSettings _appSettings;
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         #endregion
 
-        public UserSocioEconomicDialog(UserState userState, ConversationState conversationState)
+        public UserSocioEconomicDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState)
             : base(nameof(UserSocioEconomicDialog))
         {
+            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
             this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
 
@@ -106,7 +109,7 @@ namespace Microsoft.BotBuilderSamples
 
             // create family expense adaptive card
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "FamilyExpensesForm.json");
-            var familyExpenseFormCardAttachment = base.CreateAdaptiveCardAttachment(filePath);
+            var familyExpenseFormCardAttachment = base.CreateAdaptiveCardAttachment(filePath, new { DefaultRootUrl = _appSettings.DefaultRootUrl });
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(familyExpenseFormCardAttachment),
@@ -141,6 +144,7 @@ namespace Microsoft.BotBuilderSamples
                 }),
                 TotalFamilyIncome = socioEconomic.TotalFamilyIncome.ToString("C"),
                 TotalMonthlyIncome = socioEconomic.TotalMonthlyIncome.ToString("C"),
+                DefaultRootUrl = _appSettings.DefaultRootUrl,
             };
 
         #region Validators

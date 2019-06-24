@@ -20,21 +20,23 @@ namespace Microsoft.BotBuilderSamples
         #region Attributes
         private const string USER_COMPANY_STEP = "USER_COMPANY_STEP";
         private const string CNPJ_VALIDATION = "CNPJ_VALIDATION";
+        private readonly IAppSettings _appSettings;
         private readonly ICompanyRegistryManager _companyRegistryManager;
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         #endregion
 
-        public UserCompanyDialog(ICompanyRegistryManager companyRegistryManager, UserState userState, ConversationState conversationState)
+        public UserCompanyDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
             : base(nameof(UserCompanyDialog))
         {
-            this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
+            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
             this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
+            this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
 
             AddDialog(new TextPrompt(CNPJ_VALIDATION, CnpjPromptValidatorAsync));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
-            AddDialog(new UserSocioEconomicDialog(_userState, _conversationState));
+            AddDialog(new UserSocioEconomicDialog(_appSettings, _userState, _conversationState));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -161,6 +163,7 @@ namespace Microsoft.BotBuilderSamples
                         ?.Select(i => i?.PartnerAdmin)
                         ?.ToList()
                     ),
+                DefaultRootUrl = _appSettings.DefaultRootUrl,
             };
         }
 

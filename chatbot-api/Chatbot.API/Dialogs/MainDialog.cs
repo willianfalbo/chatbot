@@ -4,7 +4,6 @@ using Chatbot.API.Extensions;
 using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -13,17 +12,17 @@ namespace Microsoft.BotBuilderSamples
         private readonly UserState _userState;
         private readonly ConversationState _conversationState;
         private readonly ICompanyRegistryManager _companyRegistryManager;
-        private readonly IConfiguration _configuration;
+        private readonly IAppSettings _appSettings;
 
-        public MainDialog(UserState userState, ICompanyRegistryManager companyRegistryManager, IConfiguration configuration, ConversationState conversationState)
+        public MainDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
             : base(nameof(MainDialog))
         {
+            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
             this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
             this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
-            this._configuration = configuration ?? throw new System.ArgumentNullException(nameof(configuration));
 
-            AddDialog(new UserProfileDialog(_configuration, _companyRegistryManager, _userState, _conversationState));
+            AddDialog(new UserProfileDialog(_appSettings, _companyRegistryManager, _userState, _conversationState));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {

@@ -19,19 +19,9 @@ namespace Microsoft.BotBuilderSamples
             // https://github.com/microsoft/botframework-sdk/issues/5396
             // this is a workaround for using AdaptiveCardsPrompt
             // https://stackoverflow.com/questions/56180596/i-am-using-bot-framework-v4-3-i-want-to-retrieve-adaptive-card-submit-values
-            if (!string.IsNullOrWhiteSpace(dialogContext?.Context?.Activity?.ChannelData?.ToString()))
+            if (string.IsNullOrWhiteSpace(dialogContext.Context.Activity.Text))
             {
-                if (JObject.Parse(dialogContext?.Context?.Activity?.ChannelData?.ToString()).ContainsKey("postBack"))
-                {
-                    if (!string.IsNullOrWhiteSpace(turnContext?.Activity?.Value?.ToString()))
-                    {
-                        if (JObject.Parse(turnContext?.Activity?.Value?.ToString()).GetValue("useAdaptiveCardPromptInWaterfallDialog").Value<bool>())
-                        {
-                            // Convert the user's Adaptive Card input into the input of a Text Prompt (it must be sent as a string)
-                            dialogContext.Context.Activity.Text = dialogContext.Context.Activity.Value.ToString();
-                        }
-                    }
-                }
+                dialogContext.Context.Activity.Text = dialogContext.Context.Activity.Value.ToString();
             }
 
             var results = await dialogContext.ContinueDialogAsync(cancellationToken);

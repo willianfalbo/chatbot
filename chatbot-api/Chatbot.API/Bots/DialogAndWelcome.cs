@@ -3,22 +3,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Chatbot.API.Models;
+using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.BotBuilderSamples
 {
     public class DialogAndWelcomeBot<T> : DialogBot<T> where T : Dialog
     {
-        private readonly IConfiguration _configuration;
+        private readonly IAppSettings _appSettings;
         public DialogAndWelcomeBot(ConversationState conversationState, UserState userState, T dialog,
-        ILogger<DialogBot<T>> logger, IConfiguration configuration)
+        ILogger<DialogBot<T>> logger, IAppSettings appSettings)
             : base(conversationState, userState, dialog, logger)
         {
-            _configuration = configuration;
+            _appSettings = appSettings;
         }
 
         protected override async Task OnMembersAddedAsync(
@@ -42,39 +42,31 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task SendWelcomeCardAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var response = turnContext.Activity.CreateReply();
-
             var card = new HeroCard();
             // card.Title = "Olá, eu sou o BenicioBot!";
             // card.Text = @"Seja bem-vindo, eu sou o novo Assistente Virtual da Casa do Crédito.";
-            var imageUrl = $"{_configuration.GetValue<string>("DefaultRootUrl")}/images/avatar/greeting.png";
+            var imageUrl = $"{_appSettings.DefaultRootUrl}/images/avatar/greeting.png";
             card.Images = new List<CardImage>() { new CardImage(imageUrl) };
 
-            response.Attachments = new List<Attachment>() { card.ToAttachment() };
+            var response = MessageFactory.Attachment(card.ToAttachment());
 
             await turnContext.SendActivityAsync(response, cancellationToken);
         }
 
         private async Task SendBotDutiesAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var response = turnContext.Activity.CreateReply();
-            response.Text = "Seja bem-vindo! Eu sou o novo Assistente Virtual da Casa do Crédito.";
-            await turnContext.SendActivityAsync(response, cancellationToken);
+            var reply = MessageFactory.Text("Seja bem-vindo! Eu sou o novo Assistente Virtual da Casa do Crédito.");
+            await turnContext.SendActivityAsync(reply, cancellationToken);
         }
 
         private async Task SendBotDetailsAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var response = turnContext.Activity.CreateReply();
-            response.Text = "A minha função é ajudá-lo a obter o seu microcrédito de modo interativo.";
-            // response.Text = "Para ser mais claro, eu consigo coletar o seu pedido através da nossa conversa e, enviar diretamente para a nossa equipe, que fará a analise do seu caso.";
-
-            await turnContext.SendActivityAsync(response, cancellationToken);
+            var reply = MessageFactory.Text("A minha função é ajudá-lo a obter o seu microcrédito de modo interativo.");
+            await turnContext.SendActivityAsync(reply, cancellationToken);
         }
 
         private async Task SendHelpSuggestionsCardAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var response = turnContext.Activity.CreateReply();
-
             var card = new ThumbnailCard();
             card.Text = "Como eu posso te ajudar?";
             card.Buttons =
@@ -85,7 +77,7 @@ namespace Microsoft.BotBuilderSamples
                         value: option
                 )).ToList();
 
-            response.Attachments = new List<Attachment>() { card.ToAttachment() };
+            var response = MessageFactory.Attachment(card.ToAttachment());
 
             await turnContext.SendActivityAsync(response, cancellationToken);
         }

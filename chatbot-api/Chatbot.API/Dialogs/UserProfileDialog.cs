@@ -187,7 +187,7 @@ namespace Microsoft.BotBuilderSamples
 
             var card = new ThumbnailCard
             {
-                Title = "Se precisar de mim é só voltar!",
+                Title = "Se precisar de mim\n é só voltar!",
                 Images = new List<CardImage>() { new CardImage(imageUrl) },
             };
 

@@ -154,7 +154,7 @@ namespace Microsoft.BotBuilderSamples
                             $"{company?.CompanyAddress?.Street}, {company?.CompanyAddress?.Number} - {company?.CompanyAddress?.District}, {company?.CompanyAddress?.City} - {company?.CompanyAddress?.State}, {company?.CompanyAddress?.PostalCode}"
                         ),
                 SociosAdministradores =
-                    string.Join(", ",
+                    string.Join(",\\n",
                         company?.CompanyPartners
                         ?.Select(i => new
                         {

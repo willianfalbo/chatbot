@@ -13,7 +13,13 @@ namespace Chatbot.API
         }
 
         public string ReceitaServiceApiUrl => this._configuration.GetValue<string>("ReceitaServiceUrl", null);
+
         public string ReceitaServiceToken => this._configuration.GetValue<string>("ReceitaServiceToken", null);
-        public string DefaultRootUrl => this._configuration.GetValue<string>("DefaultRootUrl", null);
+
+        public string DefaultRootUrl => this._configuration.GetValue<string>("DefaultRootUrl", null);        
+
+        public string AzureDirectLineSecret => this._configuration.GetValue<string>("AzureDirectLineSecret", null);
+
+        public string AzureDirectLineGenerateTokenUrl => this._configuration.GetValue<string>("AzureDirectLineGenerateTokenUrl", null);
     }
 }

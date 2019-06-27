@@ -88,7 +88,16 @@ namespace Chatbot.Service.Util
                 var request =
                     new StringContent(JsonConvert.SerializeObject(input), Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync(uri, request);
+                var retryPolicy = Policy
+                    .Handle<HttpRequestException>()
+                    .WaitAndRetryAsync(_pauseBetweenFailures);
+
+                var response = new HttpResponseMessage();
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+                    response = await httpClient.PostAsync(uri, request);
+                });
+
                 var content = await response.Content.ReadAsStringAsync();
 
                 return DeserializeAndCheck<T, TError>(

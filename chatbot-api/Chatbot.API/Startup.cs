@@ -47,6 +47,7 @@ namespace Microsoft.BotBuilderSamples
             // custom classes
             services.AddSingleton<IAppSettings, AppSettings>();
             services.AddSingleton<ICompanyRegistryManager, CompanyRegistryManager>();
+            services.AddSingleton<IDirectLineManager, DirectLineManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +75,7 @@ namespace Microsoft.BotBuilderSamples
 
             var cfg = new MapperConfigurationExpression();
             cfg.AddProfile<CompanyRegistryMappingProfile>();
+            cfg.AddProfile<DirectLineTokenMappingProfile>();
 
             Mapper.Initialize(cfg);
 

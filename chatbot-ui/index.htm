@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <title>Web Chat: Full-featured bundle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/markdown-it/dist/markdown-it.min.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0
+        }
+
+        #webchat {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="webchat" role="main"></div>
+    <script>
+        (async function () {
+            const res = await fetch('https://azr-br-bot-webapp.azurewebsites.net/api/directline/token', { method: 'POST' });
+
+            const { token } = await res.json();
+
+            const styleOptions = {
+                botAvatarImage: 'https://azr-br-rg-bot-webui.azurewebsites.net/images/avatar/avatar-face.png',
+                // userAvatarImage: 'https://github.com/compulim.png?size=64',
+                // bubbleBackground: 'rgba(8, 14, 113, 0.3)',
+                // bubbleFromUserBackground: 'rgba(229, 103, 16, 0.3)',
+                // botAvatarInitials: 'Beni',
+                // userAvatarInitials: 'Eu',
+            };
+
+            // We are using a customized store to add hooks to connect event
+            const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
+                if (action.type === 'DIRECT_LINE/CONNECT_FULFILLED') {
+                    // When we receive DIRECT_LINE/CONNECT_FULFILLED action, we will send an event activity using WEB_CHAT/SEND_EVENT
+                    dispatch({
+                        type: 'WEB_CHAT/SEND_EVENT',
+                        payload: {
+                            name: 'webchat/join',
+                            value: { language: window.navigator.language }
+                        }
+                    });
+                }
+                return next(action);
+            });
+
+            window.WebChat.renderWebChat({
+                directLine: window.WebChat.createDirectLine({ token }),
+                webSpeechPonyfillFactory: window.WebChat.createBrowserWebSpeechPonyfillFactory(), // to enable speech button
+                store, // to send activity and prompt welcome message when the dialog first starts
+                styleOptions,
+                locale: 'pt-BR',
+                sendTypingIndicator: true,
+            }, document.getElementById('webchat'));
+
+            document.querySelector('#webchat > *').focus();
+
+        })().catch(err => console.error(err));
+    </script>
+</body>
+
+</html>

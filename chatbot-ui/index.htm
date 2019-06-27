@@ -27,15 +27,15 @@
     <div id="webchat" role="main"></div>
     <script>
         (async function () {
-            const res = await fetch('https://azr-br-bot-webapp.azurewebsites.net/api/directline/token', { method: 'POST' });
+            const res = await fetch('https://azr-br-rg-bot-app.azurewebsites.net/api/directline/token', { method: 'POST' });
 
             const { token } = await res.json();
 
             const styleOptions = {
                 botAvatarImage: 'https://azr-br-rg-bot-webui.azurewebsites.net/images/avatar/avatar-face.png',
                 // userAvatarImage: 'https://github.com/compulim.png?size=64',
-                // bubbleBackground: 'rgba(8, 14, 113, 0.3)',
-                // bubbleFromUserBackground: 'rgba(229, 103, 16, 0.3)',
+                bubbleBackground: 'rgba(91, 100, 232, 0.1)',
+                // bubbleFromUserBackground: 'rgba(208, 96, 19, 0.2)',
                 // botAvatarInitials: 'Beni',
                 // userAvatarInitials: 'Eu',
             };

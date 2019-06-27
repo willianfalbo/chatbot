@@ -44,6 +44,7 @@ namespace Microsoft.BotBuilderSamples
         {
             _logger.LogInformation("Running dialog with Message Activity.");
 
+            //TODO: wrap this up into the CustomComponentDialog
             var userStateAccessors = _userState.CreateProperty<UserPreference>(nameof(UserPreference));
             var profile = await userStateAccessors.GetAsync(turnContext, () => new UserPreference());
 

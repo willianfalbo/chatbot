@@ -16,75 +16,34 @@
             "bleed": true
         },
         {
-            "type": "ColumnSet",
-            "columns": [
-                {
-                    "type": "Column",
-                    "items": [
-                        {
-                            "type": "Input.Number",
-                            "id": "FoodAndBasicCare",
-                            "validation": {
-                                "necessity": "RequiredWithVisualCue"
-                            },
-                            "placeholder": "Alimentação/Higiene/Limpeza"
-                        },
-                        {
-                            "type": "Input.Number",
-                            "id": "Health",
-                            "validation": {
-                                "necessity": "RequiredWithVisualCue"
-                            },
-                            "placeholder": "Saúde (remédios, plano de saúde, médicos)"
-                        },
-                        {
-                            "type": "Input.Number",
-                            "id": "Education",
-                            "validation": {
-                                "necessity": "RequiredWithVisualCue"
-                            },
-                            "placeholder": "Educação"
-                        },
-                        {
-                            "type": "Input.Number",
-                            "id": "RentalAndHousing",
-                            "validation": {
-                                "necessity": "RequiredWithVisualCue"
-                            },
-                            "placeholder": "Aluguel/Condomínio/Prestação da casa própria"
-                        },
-                        {
-                            "type": "Input.Number",
-                            "id": "HousingRelatedBills",
-                            "validation": {
-                                "necessity": "RequiredWithVisualCue"
-                            },
-                            "placeholder": "Água/Luz/Telefone/Gás"
-                        },
-                        {
-                            "type": "Input.Number",
-                            "id": "OtherExpenses",
-                            "placeholder": "Outros Gastos"
-                        }
-                    ],
-                    "width": 2
-                },
-                {
-                    "type": "Column",
-                    "horizontalAlignment": "Center",
-                    "items": [
-                        {
-                            "type": "Image",
-                            "horizontalAlignment": "Center",
-                            "spacing": "None",
-                            "url": "{{DefaultRootUrl}}/images/avatar/outOfMoney.png",
-                            "size": "Large",
-                            "altText": ""
-                        }
-                    ],
-                    "width": 1
-                }
-            ]
+            "type": "Input.Number",
+            "id": "FoodAndBasicCare",
+            "placeholder": "Alimentação/Higiene/Limpeza"
+        },
+        {
+            "type": "Input.Number",
+            "id": "Health",
+            "placeholder": "Saúde (remédios, plano de saúde, médicos)"
+        },
+        {
+            "type": "Input.Number",
+            "id": "Education",
+            "placeholder": "Educação"
+        },
+        {
+            "type": "Input.Number",
+            "id": "RentalAndHousing",
+            "placeholder": "Aluguel/Condomínio/Prestação da casa própria"
+        },
+        {
+            "type": "Input.Number",
+            "id": "HousingRelatedBills",
+            "placeholder": "Água/Luz/Telefone/Gás"
+        },
+        {
+            "type": "Input.Number",
+            "id": "OtherExpenses",
+            "placeholder": "Outros Gastos"
         }
     ],
     "actions": [

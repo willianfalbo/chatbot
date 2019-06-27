@@ -6,7 +6,6 @@ using Chatbot.API.Models;
 using Chatbot.API.Extensions;
 using Chatbot.Common.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -20,9 +19,14 @@ namespace Microsoft.BotBuilderSamples
         private const string MONTHLY_VALUE_VALIDATION = "MONTHLY_VALUE_VALIDATION";
         #endregion
 
-        public FamilyIncomesDialog()
-            : base(nameof(FamilyIncomesDialog))
+        public FamilyIncomesDialog(UserState userState, ConversationState conversationState)
+            : base(nameof(FamilyIncomesDialog), userState, conversationState)
         {
+            if (userState is null)
+                throw new System.ArgumentNullException(nameof(userState));
+            if (conversationState is null)
+                throw new System.ArgumentNullException(nameof(conversationState));
+
             AddDialog(new TextPrompt(NAME_VALIDATION, NamePromptValidatorAsync));
             AddDialog(new TextPrompt(SOURCE_VALIDATION, SourcePromptValidatorAsync));
             AddDialog(new NumberPrompt<decimal>(MONTHLY_VALUE_VALIDATION, MonthlyIncomePromptValidatorAsync));
@@ -47,22 +51,6 @@ namespace Microsoft.BotBuilderSamples
             var listOfIncomes = stepContext.Options as List<FamilyIncome> ?? new List<FamilyIncome>();
             stepContext.Values[LIST_OF_INCOMES_STEP] = listOfIncomes;
             stepContext.Values[CURRENT_INCOME_STEP] = new FamilyIncome();
-
-            if (listOfIncomes.IsEmpty())
-            {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Então, vamos começar..."), cancellationToken);
-            }
-            else
-            {
-                if (listOfIncomes.Count > 1)
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Legal"), cancellationToken);
-                else
-                {
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Sem problema!"), cancellationToken);
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Eu te ajudo quantas vezes necessário"), cancellationToken);
-                }
-
-            }
 
             var promptOptions = new PromptOptions
             {
@@ -163,15 +151,10 @@ namespace Microsoft.BotBuilderSamples
                 else if (value <= maximumAcceptedValue)
                     valid = true;
                 else
-                {
-                    await promptContext.Context.SendActivityAsync(MessageFactory.Text("Este é um valor alto!"), cancellationToken);
                     await promptContext.Context.SendActivityAsync(MessageFactory.Text($"O máximo que eu consigo aceitar é {maximumAcceptedValue.ToString("C")}"), cancellationToken);
-                }
             }
             else
-            {
                 await promptContext.Context.SendActivityAsync(MessageFactory.Text("Na verdade eu espero apenas números!"), cancellationToken);
-            }
 
             return await Task.FromResult(valid);
         }

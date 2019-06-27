@@ -24,10 +24,10 @@ namespace Chatbot.Manager
         {
             var response = await _directLineService.GenerateToken();
 
-            // if (response.HasError)
-            //     return new ManagerResponse<DirectLineToken>(response?.Content?.Message); //TODO: wrapped up this into the Auto Mapper
-            // else
-            return new ManagerResponse<DirectLineToken>(_mapper.Map<DirectLineToken>(response?.Content));
+            if (response.HasError) //TODO: Check if this is correct
+                return new ManagerResponse<DirectLineToken>(response?.ErrorMessage); //TODO: wrapped up this into the Auto Mapper
+            else
+                return new ManagerResponse<DirectLineToken>(_mapper.Map<DirectLineToken>(response?.Content));
         }
     }
 }

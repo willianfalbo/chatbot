@@ -59,6 +59,7 @@ namespace Chatbot.API.Extensions
                 "tá bem",
                 "está bem",
                 "está tudo bem",
+                "tudo bem",
                 "certo",
                 "tá certo",
                 "tá tudo certo",

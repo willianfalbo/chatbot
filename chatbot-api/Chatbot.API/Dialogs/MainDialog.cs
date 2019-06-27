@@ -9,20 +9,20 @@ namespace Microsoft.BotBuilderSamples
 {
     public class MainDialog : CustomComponentDialog
     {
-        private readonly UserState _userState;
-        private readonly ConversationState _conversationState;
-        private readonly ICompanyRegistryManager _companyRegistryManager;
         private readonly IAppSettings _appSettings;
 
         public MainDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
-            : base(nameof(MainDialog))
+            : base(nameof(MainDialog), userState, conversationState)
         {
+            if (userState is null)
+                throw new System.ArgumentNullException(nameof(userState));
+            if (conversationState is null)
+                throw new System.ArgumentNullException(nameof(conversationState));
+            if (companyRegistryManager is null)
+                throw new System.ArgumentNullException(nameof(companyRegistryManager));
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
-            this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
-            this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
 
-            AddDialog(new UserProfileDialog(_appSettings, _companyRegistryManager, _userState, _conversationState));
+            AddDialog(new UserProfileDialog(appSettings, companyRegistryManager, userState, conversationState));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {

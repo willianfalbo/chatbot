@@ -21,20 +21,21 @@ namespace Microsoft.BotBuilderSamples
         private const string USER_SOCIOECONOMIC_STEP = "USER_SOCIOECONOMIC_STEP";
         private const string MONTHLY_INCOME_VALIDATION = "MONTHLY_INCOME_VALIDATION";
         private readonly IAppSettings _appSettings;
-        private readonly UserState _userState;
-        private readonly ConversationState _conversationState;
         #endregion
 
         public UserSocioEconomicDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState)
-            : base(nameof(UserSocioEconomicDialog))
+            : base(nameof(UserSocioEconomicDialog), userState, conversationState)
         {
+            if (userState is null)
+                throw new System.ArgumentNullException(nameof(userState));
+            if (conversationState is null)
+                throw new System.ArgumentNullException(nameof(conversationState));
+
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
-            this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
 
             AddDialog(new NumberPrompt<decimal>(MONTHLY_INCOME_VALIDATION, MonthlyIncomePromptValidatorAsync));
             AddDialog(new CustomConfirmPrompt(nameof(CustomConfirmPrompt)));
-            AddDialog(new FamilyIncomesDialog());
+            AddDialog(new FamilyIncomesDialog(userState, conversationState));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -54,8 +55,6 @@ namespace Microsoft.BotBuilderSamples
         {
             stepContext.Values[USER_SOCIOECONOMIC_STEP] = new UserSocioEconomic();
 
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Vamos começar a próxima etapa"), cancellationToken);
-
             var promptOptions = new PromptOptions
             {
                 Prompt = MessageFactory.Text("Qual é a renda mensal da sua empresa?")
@@ -71,7 +70,7 @@ namespace Microsoft.BotBuilderSamples
 
             return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
             {
-                Prompt = MessageFactory.Text("Você teria outras Rendas Familiares?"),
+                Prompt = MessageFactory.Text("Você teria outras rendas familiares?"),
                 RetryPrompt = MessageFactory.Text("Na verdade eu espero SIM ou NÃO como resposta!")
             }, cancellationToken);
         }
@@ -88,14 +87,11 @@ namespace Microsoft.BotBuilderSamples
         {
             var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomic;
 
-            if (stepContext.Result is null)
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Vamos começar a próxima etapa"), cancellationToken);
-            else
+            if (!(stepContext.Result is null))
             {
                 socioEconomic.FamilyIncomes = stepContext.Result as List<FamilyIncome>;
 
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Obrigado por me ajudar"), cancellationToken);
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Eu consegui registrar esses items abaixo:"), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Obrigado por me ajudar. \nEu consegui registrar esses items abaixo:"), cancellationToken);
 
                 // create monthly income adaptive card
                 var monthlyIncomePath = Path.Combine(".", "Resources", "AdaptiveCard", "MonthlyIncomeDetails.json");
@@ -104,12 +100,11 @@ namespace Microsoft.BotBuilderSamples
             }
 
             // save the User SocioEconomic data into the Conversation State
-            var conversationStateAccessors = _conversationState.CreateProperty<UserSocioEconomic>(nameof(UserSocioEconomic));
-            await conversationStateAccessors.SetAsync(stepContext.Context, socioEconomic, cancellationToken);
+            await base.SetConversationState(stepContext.Context, socioEconomic, cancellationToken);
 
             // create family expense adaptive card
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "FamilyExpensesForm.json");
-            var familyExpenseFormCardAttachment = base.CreateAdaptiveCardAttachment(filePath, new { DefaultRootUrl = _appSettings.DefaultRootUrl });
+            var familyExpenseFormCardAttachment = base.CreateAdaptiveCardAttachment(filePath, new { WebUiAppUrl = _appSettings.WebUiAppUrl });
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(familyExpenseFormCardAttachment),
@@ -124,8 +119,7 @@ namespace Microsoft.BotBuilderSamples
             socioEconomic.FamilyExpense = JsonConvert.DeserializeObject<FamilyExpense>(stepContext.Result?.ToString());
 
             // save the User SocioEconomic data into the Conversation State
-            var conversationStateAccessors = _conversationState.CreateProperty<UserSocioEconomic>(nameof(UserSocioEconomic));
-            await conversationStateAccessors.SetAsync(stepContext.Context, socioEconomic, cancellationToken);
+            await base.SetConversationState(stepContext.Context, socioEconomic, cancellationToken);
 
             // Exit the dialog, returning the collected data information
             return await stepContext.EndDialogAsync(stepContext.Values[USER_SOCIOECONOMIC_STEP], cancellationToken);
@@ -144,7 +138,7 @@ namespace Microsoft.BotBuilderSamples
                 }),
                 TotalFamilyIncome = socioEconomic.TotalFamilyIncome.ToString("C"),
                 TotalMonthlyIncome = socioEconomic.TotalMonthlyIncome.ToString("C"),
-                DefaultRootUrl = _appSettings.DefaultRootUrl,
+                WebUiAppUrl = _appSettings.WebUiAppUrl,
             };
 
         #region Validators
@@ -157,33 +151,17 @@ namespace Microsoft.BotBuilderSamples
                 var maximumAcceptedValue = 4800000;
                 if (value <= maximumAcceptedValue)
                 {
-                    await promptContext.Context.SendActivityAsync(MessageFactory.Text("Legal"), cancellationToken);
-
                     var minimumAcceptedValue = 1000;
                     if (value < minimumAcceptedValue)
                         await promptContext.Context.SendActivityAsync(MessageFactory.Text($"Valores menores que {minimumAcceptedValue.ToString("C")} não são aceitos"), cancellationToken);
                     else
-                    {
-                        if (value <= 81000)
-                            await promptContext.Context.SendActivityAsync(MessageFactory.Text("Provavelmente você é um Microempreendedor Individual"), cancellationToken);
-                        else if (value <= 360000)
-                            await promptContext.Context.SendActivityAsync(MessageFactory.Text("Provavelmente esta é uma Microempresa"), cancellationToken);
-                        else
-                            await promptContext.Context.SendActivityAsync(MessageFactory.Text("Provavelmente esta é uma Empresa de Pequeno Porte"), cancellationToken);
-
                         valid = true;
-                    }
                 }
                 else
-                {
-                    await promptContext.Context.SendActivityAsync(MessageFactory.Text("Este é um valor alto e não se enquadra em nossa politica!"), cancellationToken);
                     await promptContext.Context.SendActivityAsync(MessageFactory.Text($"O máximo que eu consigo aceitar é {maximumAcceptedValue.ToString("C")}"), cancellationToken);
-                }
             }
             else
-            {
                 await promptContext.Context.SendActivityAsync(MessageFactory.Text("Na verdade eu espero apenas números!"), cancellationToken);
-            }
 
             return await Task.FromResult(valid);
         }

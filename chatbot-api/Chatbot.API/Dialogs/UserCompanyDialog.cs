@@ -22,21 +22,21 @@ namespace Microsoft.BotBuilderSamples
         private const string CNPJ_VALIDATION = "CNPJ_VALIDATION";
         private readonly IAppSettings _appSettings;
         private readonly ICompanyRegistryManager _companyRegistryManager;
-        private readonly UserState _userState;
-        private readonly ConversationState _conversationState;
         #endregion
 
         public UserCompanyDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
-            : base(nameof(UserCompanyDialog))
+            : base(nameof(UserCompanyDialog), userState, conversationState)
         {
+            if (userState is null)
+                throw new System.ArgumentNullException(nameof(userState));
+            if (conversationState is null)
+                throw new System.ArgumentNullException(nameof(conversationState));
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            this._userState = userState ?? throw new System.ArgumentNullException(nameof(userState));
-            this._conversationState = conversationState ?? throw new System.ArgumentNullException(nameof(conversationState));
             this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
 
             AddDialog(new TextPrompt(CNPJ_VALIDATION, CnpjPromptValidatorAsync));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
-            AddDialog(new UserSocioEconomicDialog(_appSettings, _userState, _conversationState));
+            AddDialog(new UserSocioEconomicDialog(appSettings, userState, conversationState));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -55,11 +55,11 @@ namespace Microsoft.BotBuilderSamples
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_COMPANY_STEP] = new UserCompany();
 
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Diga lá..."), cancellationToken);
+            var profile = await base.GetUserState<UserProfile>(stepContext.Context);
 
             var promptOptions = new PromptOptions
             {
-                Prompt = MessageFactory.Text("Qual é o CNPJ da sua empresa?"),
+                Prompt = MessageFactory.Text($"{profile.Name}, qual é o CNPJ da sua empresa?"),
                 RetryPrompt = MessageFactory.Text("Este não é um CNPJ válido! Tente novamente.")
             };
             // Ask the user to enter their name.
@@ -73,29 +73,25 @@ namespace Microsoft.BotBuilderSamples
             company.TaxIdentificationNumber = stepContext.Result?.ToString()?.Trim();
 
             var result = await _companyRegistryManager.SearchForCnpj(company.TaxIdentificationNumber);
+            var message = string.Empty;
 
             if (!result.HasError)
             {
                 if (result?.Value != null)
-                {
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Obrigado"), cancellationToken);
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Já identifiquei suas informações"), cancellationToken);
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Poderia confirmar se os dados abaixo estão corretos?"), cancellationToken);
-                }
+                    message += "Eu já identifiquei suas informações. \nPoderia confirmar se os dados abaixo estão corretos? ";
                 else
-                {
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Não encontrei nenhuma informação"), cancellationToken);
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Por favor, preencha o formulário"), cancellationToken);
-                }
+                    message += "Não encontrei nenhuma informação. \nPor favor, preencha o formulário. ";
             }
             else
             {
                 foreach (var error in result.Errors)
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Erro: {error.Message}"), cancellationToken);
+                    message += $"Erro: {error.Message} \n";
 
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Infelizmente eu encontrei alguns problemas"), cancellationToken);
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Por favor, preencha o formulário"), cancellationToken);
+                message += "\nInfelizmente eu encontrei alguns problemas.";
+                message += "\nPor favor, preencha o formulário.";
             }
+
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text(message), cancellationToken);
 
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "UserCompanyForm.json");
 
@@ -115,10 +111,7 @@ namespace Microsoft.BotBuilderSamples
             userCompany = JsonConvert.DeserializeObject<UserCompany>(stepContext.Result?.ToString());
 
             // save the User Company data into the Conversation State
-            var conversationStateAccessors = _conversationState.CreateProperty<UserCompany>(nameof(UserCompany));
-            await conversationStateAccessors.SetAsync(stepContext.Context, userCompany, cancellationToken);
-
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text("Muito obrigado"), cancellationToken);
+            await base.SetConversationState(stepContext.Context, userCompany, cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserSocioEconomicDialog), null, cancellationToken);
@@ -163,7 +156,7 @@ namespace Microsoft.BotBuilderSamples
                         ?.Select(i => i?.PartnerAdmin)
                         ?.ToList()
                     ),
-                DefaultRootUrl = _appSettings.DefaultRootUrl,
+                WebUiAppUrl = _appSettings.WebUiAppUrl,
             };
         }
 
@@ -175,7 +168,7 @@ namespace Microsoft.BotBuilderSamples
             {
                 var cnpj = promptContext.Recognized.Value?.Trim()?.Replace('–', '-');
 
-                if (cnpj.IsEqual(cnpj?.Digits('.', '/', '-')))
+                // if (cnpj.IsEqual(cnpj?.Digits('.', '/', '-')))
                     if (cnpj.IsCnpjValid())
                         valid = true;
             }

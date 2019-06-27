@@ -1,4 +1,6 @@
-﻿namespace Chatbot.API.Models
+﻿using System.Collections.Generic;
+
+namespace Chatbot.API.Models
 {
     public class UserProfile
     {

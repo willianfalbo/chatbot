@@ -2,94 +2,41 @@
     "type": "AdaptiveCard",
     "body": [
         {
-            "type": "ColumnSet",
-            "columns": [
-                {
-                    "type": "Column",
-                    "items": [
-                        {
-                            "type": "TextBlock",
-                            "horizontalAlignment": "Left",
-                            "weight": "Bolder",
-                            "color": "Accent",
-                            "text": "**RENDA MENSAL DA EMPRESA**"
-                        },
-                        {
-                            "type": "Container",
-                            "spacing": "None",
-                            "style": "emphasis",
-                            "items": [
-                                {
-                                    "type": "ColumnSet",
-                                    "horizontalAlignment": "Left",
-                                    "spacing": "None",
-                                    "columns": [
-                                        {
-                                            "type": "Column",
-                                            "horizontalAlignment": "Left",
-                                            "spacing": "None",
-                                            "items": [
-                                                {
-                                                    "type": "TextBlock",
-                                                    "horizontalAlignment": "Left",
-                                                    "spacing": "None",
-                                                    "text": "Total da renda",
-                                                    "wrap": true
-                                                }
-                                            ],
-                                            "width": "auto"
-                                        },
-                                        {
-                                            "type": "Column",
-                                            "items": [
-                                                {
-                                                    "type": "TextBlock",
-                                                    "spacing": "None",
-                                                    "weight": "Bolder",
-                                                    "text": "{{MonthlyIncome}}"
-                                                }
-                                            ],
-                                            "width": "auto"
-                                        }
-                                    ]
-                                }
-                            ],
-                            "bleed": true
-                        },
-                        {
-                            "type": "TextBlock",
-                            "horizontalAlignment": "Left",
-                            "weight": "Bolder",
-                            "text": "Total geral da renda mensal"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "size": "Medium",
-                            "weight": "Bolder",
-                            "color": "Good",
-                            "text": "{{TotalMonthlyIncome}}"
-                        }
-                    ],
-                    "width": 3
-                },
-                {
-                    "type": "Column",
-                    "spacing": "None",
-                    "items": [
-                        {
-                            "type": "Image",
-                            "url": "{{DefaultRootUrl}}/images/avatar/money.png",
-                            "size": "Large",
-                            "altText": ""
-                        }
-                    ],
-                    "width": 2
-                }
-            ]
+            "type": "TextBlock",
+            "horizontalAlignment": "Left",
+            "weight": "Bolder",
+            "color": "Accent",
+            "text": "**RENDA MENSAL DA EMPRESA**"
         },
         {
             "type": "Container",
             "spacing": "None",
+            "style": "emphasis",
+            "items": [
+                {
+                    "type": "ColumnSet",
+                    "horizontalAlignment": "Left",
+                    "spacing": "None",
+                    "columns": [
+                        {
+                            "type": "Column",
+                            "items": [
+                                {
+                                    "type": "TextBlock",
+                                    "spacing": "None",
+                                    "weight": "Bolder",
+                                    "text": "{{MonthlyIncome}}"
+                                }
+                            ],
+                            "width": "auto"
+                        }
+                    ]
+                }
+            ],
+            "bleed": true
+        },
+        {
+            "type": "Container",
             "items": [
                 {
                     "type": "TextBlock",
@@ -244,6 +191,19 @@
                 }
             ],
             "bleed": true
+        },
+        {
+            "type": "TextBlock",
+            "horizontalAlignment": "Left",
+            "weight": "Bolder",
+            "text": "Total geral da renda mensal"
+        },
+        {
+            "type": "TextBlock",
+            "size": "Medium",
+            "weight": "Bolder",
+            "color": "Good",
+            "text": "{{TotalMonthlyIncome}}"
         }
     ],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",

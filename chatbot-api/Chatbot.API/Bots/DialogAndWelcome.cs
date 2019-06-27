@@ -32,36 +32,15 @@ namespace Microsoft.BotBuilderSamples
                 // To learn more about Adaptive Cards, see https://aka.ms/msbot-adaptivecards for more details.
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    await SendWelcomeCardAsync(turnContext, cancellationToken);
                     await SendBotDutiesAsync(turnContext, cancellationToken);
-                    await SendBotDetailsAsync(turnContext, cancellationToken);
                     await SendHelpSuggestionsCardAsync(turnContext, cancellationToken);
                 }
             }
         }
 
-        private async Task SendWelcomeCardAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            var card = new HeroCard();
-            // card.Title = "Olá, eu sou o BenicioBot!";
-            // card.Text = @"Seja bem-vindo, eu sou o novo Assistente Virtual da Casa do Crédito.";
-            var imageUrl = $"{_appSettings.DefaultRootUrl}/images/avatar/greeting.png";
-            card.Images = new List<CardImage>() { new CardImage(imageUrl) };
-
-            var response = MessageFactory.Attachment(card.ToAttachment());
-
-            await turnContext.SendActivityAsync(response, cancellationToken);
-        }
-
         private async Task SendBotDutiesAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            var reply = MessageFactory.Text("Seja bem-vindo! Eu sou o novo Assistente Virtual da Casa do Crédito.");
-            await turnContext.SendActivityAsync(reply, cancellationToken);
-        }
-
-        private async Task SendBotDetailsAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        {
-            var reply = MessageFactory.Text("A minha função é ajudá-lo a obter o seu microcrédito de modo interativo.");
+            var reply = MessageFactory.Text("Seja bem-vindo! Eu sou o novo Assistente Virtual da Casa do Crédito.\nA minha função é ajudá-lo a obter o seu microcrédito de modo interativo.\n");
             await turnContext.SendActivityAsync(reply, cancellationToken);
         }
 

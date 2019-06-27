@@ -16,7 +16,7 @@ namespace Chatbot.API
 
         public string ReceitaServiceToken => this._configuration.GetValue<string>("ReceitaServiceToken", null);
 
-        public string DefaultRootUrl => this._configuration.GetValue<string>("DefaultRootUrl", null);        
+        public string WebUiAppUrl => this._configuration.GetValue<string>("WebUiAppUrl", null);        
 
         public string AzureDirectLineSecret => this._configuration.GetValue<string>("AzureDirectLineSecret", null);
 

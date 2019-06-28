@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 
 <head>
-    <title>Web Chat: Full-featured bundle</title>
+    <title>Web Chatbot UI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
     <script type="text/javascript" src="https://unpkg.com/markdown-it/dist/markdown-it.min.js"></script>
@@ -20,25 +20,49 @@
             height: 100%;
             width: 100%;
         }
+
+        button {
+            border-radius: 15px;
+        }
     </style>
 </head>
 
 <body>
     <div id="webchat" role="main"></div>
     <script>
-        (async function () {
-            const res = await fetch('https://azr-br-rg-bot-app.azurewebsites.net/api/directline/token', { method: 'POST' });
 
+        // customize webchat
+        // https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-webchat-customization?view=azure-bot-service-4.0
+        // https://github.com/Microsoft/BotFramework-WebChat/blob/master/packages/component/src/Styles/defaultStyleOptions.js
+        function styleOptionsSetup() {
+            const DEFAULT_FONT = 'Calibri';
+            const DEFAULT_BORDER_RADIUS = 20;
+            return {
+                //fonts
+                monospaceFont: DEFAULT_FONT,
+                primaryFont: DEFAULT_FONT,
+                //avatar
+                botAvatarImage: 'https://azr-br-rg-bot-webui.azurewebsites.net/images/avatar/avatar-face2.png',
+                // userAvatarImage: '',
+                bubbleBackground: 'rgba(88, 88, 88, 0.06)',
+                bubbleFromUserBackground: 'rgba(56, 88, 205, 1)',
+                //bubble
+                bubbleBorderRadius: DEFAULT_BORDER_RADIUS,
+                bubbleFromUserBorderRadius: DEFAULT_BORDER_RADIUS,
+                bubbleBorder: '',
+                bubbleFromUserBorder: '',
+                // bubbleTextColor: 'Black',
+                bubbleFromUserTextColor: 'White',
+                // Suggested actions
+                suggestedActionBorderRadius: DEFAULT_BORDER_RADIUS,
+            };
+        }
+
+        (async function () {
+            const res = await fetch('http://localhost:3979/api/directline/token', { method: 'POST' });
             const { token } = await res.json();
 
-            const styleOptions = {
-                botAvatarImage: 'https://azr-br-rg-bot-webui.azurewebsites.net/images/avatar/avatar-face.png',
-                // userAvatarImage: 'https://github.com/compulim.png?size=64',
-                bubbleBackground: 'rgba(91, 100, 232, 0.1)',
-                // bubbleFromUserBackground: 'rgba(208, 96, 19, 0.2)',
-                // botAvatarInitials: 'Beni',
-                // userAvatarInitials: 'Eu',
-            };
+            const styleOptions = styleOptionsSetup();
 
             // We are using a customized store to add hooks to connect event
             const store = window.WebChat.createStore({}, ({ dispatch }) => next => action => {
@@ -47,7 +71,7 @@
                     dispatch({
                         type: 'WEB_CHAT/SEND_EVENT',
                         payload: {
-                            name: 'webchat/join',
+                            name: 'chatbot/join',
                             value: { language: window.navigator.language }
                         }
                     });

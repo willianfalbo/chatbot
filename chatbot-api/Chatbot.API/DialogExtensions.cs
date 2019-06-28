@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.BotBuilderSamples
 {

@@ -33,6 +33,8 @@ namespace Microsoft.BotBuilderSamples
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
         {
+            await SendTypingActivity(turnContext, cancellationToken);
+
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Save any state changes that might have occured during the turn.
@@ -49,8 +51,8 @@ namespace Microsoft.BotBuilderSamples
             var profile = await userStateAccessors.GetAsync(turnContext, () => new UserPreference());
 
             string input = turnContext.Activity.Text?.Trim();
-            // await turnContext.SendActivityAsync($"Response {input}.");
-            // await turnContext.SendActivityAsync($"UserHelpOption {profile.UserHelpOption}.");
+            // await turnContext.SendActivityAsync(MessageFactory.Text($"Response {input}."), cancellationToken);
+            // await turnContext.SendActivityAsync(MessageFactory.Text($"UserHelpOption {profile.UserOption}."), cancellationToken);
 
             // check if user has given the expected option
             if (string.IsNullOrWhiteSpace(profile.UserOption) && !string.IsNullOrWhiteSpace(input))
@@ -64,6 +66,21 @@ namespace Microsoft.BotBuilderSamples
             {
                 // Run the Dialog with the new message Activity.
                 await _dialog.Run(turnContext, _conversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            }
+            else
+            {
+                await turnContext.SendActivityAsync(MessageFactory.Text("Eu preciso que você diga alguma das opções acima."), cancellationToken);
+            }
+        }
+
+        private static async Task SendTypingActivity(ITurnContext context, CancellationToken cancellationToken)
+        {
+            // this bot is only handling messages
+            if (context.Activity.Type == ActivityTypes.Message)
+            {
+                // send typing activity
+                //await context.SendActivityAsync(Activity.CreateTypingActivity(), cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
     }

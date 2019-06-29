@@ -1,0 +1,23 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+#webchat {
+    height: 100%;
+    width: 100%;
+    /* background-image: url("assets/img/background-chatbot.png"); */
+}
+
+button {
+    border-radius: 5px;
+}
+
+/* to change specific bot element */
+/* div[class="webchat__row attachment"] p {
+    font-size: 120%;
+} */

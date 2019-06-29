@@ -33,7 +33,7 @@ namespace Microsoft.BotBuilderSamples
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await SendTypingActivity(turnContext, cancellationToken);
+            // await SendTypingActivity(turnContext, cancellationToken);
 
             await base.OnTurnAsync(turnContext, cancellationToken);
 
@@ -69,19 +69,9 @@ namespace Microsoft.BotBuilderSamples
             }
             else
             {
-                await turnContext.SendActivityAsync(MessageFactory.Text("Eu preciso que você diga alguma das opções acima."), cancellationToken);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Eu espero alguma das opções acima."), cancellationToken);
             }
         }
 
-        private static async Task SendTypingActivity(ITurnContext context, CancellationToken cancellationToken)
-        {
-            // this bot is only handling messages
-            if (context.Activity.Type == ActivityTypes.Message)
-            {
-                // send typing activity
-                //await context.SendActivityAsync(Activity.CreateTypingActivity(), cancellationToken);
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
-        }
     }
 }

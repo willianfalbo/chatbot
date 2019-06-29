@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,6 +64,37 @@ namespace Chatbot.API.Extensions
         {
             var stateAccessor = _conversationState.CreateProperty<T>(typeof(T).Name);
             await stateAccessor.SetAsync(context, content, cancellationToken);
+        }
+
+        protected async Task SendTypingActivity(ITurnContext context, CancellationToken cancellationToken)
+        {
+            // this bot is only handling messages
+            if (context.Activity.Type == ActivityTypes.Message)
+            {
+                var typingActivity = Activity.CreateTypingActivity();
+
+                typingActivity.ReplyToId = context.Activity.Id;
+                typingActivity.From = new ChannelAccount
+                {
+                    Id = context.Activity.Recipient.Id,
+                    Name = context.Activity.Recipient.Name
+                };
+                typingActivity.Recipient = new ChannelAccount
+                {
+                    Id = context.Activity.From.Id,
+                    Name = context.Activity.From.Name
+                };
+                typingActivity.Conversation = new ConversationAccount
+                {
+                    Id = context.Activity.Conversation.Id,
+                    Name = context.Activity.Conversation.Name,
+                    IsGroup = context.Activity.Conversation.IsGroup
+                };
+
+                // send typing activity
+                await context.SendActivityAsync(typingActivity, cancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
         }
     }
 }

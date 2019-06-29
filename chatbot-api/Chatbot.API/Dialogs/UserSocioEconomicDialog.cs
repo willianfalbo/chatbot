@@ -43,6 +43,7 @@ namespace Microsoft.BotBuilderSamples
                 AskForMonthlyIncomeStepAsync,
                 AskForFamilyIncomesStepAsync,
                 SkipOrStartFamilyIncomesDialogStepAsync,
+                AskForMonthlyExpensesStepAsync,
                 StartMonthlyExpensesDialogStepAsync,
                 FinalStepAsync,
             }));
@@ -53,6 +54,8 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog
         private async Task<DialogTurnResult> AskForMonthlyIncomeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             stepContext.Values[USER_SOCIOECONOMIC_STEP] = new UserSocioEconomic();
 
             var promptOptions = new PromptOptions
@@ -65,6 +68,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForFamilyIncomesStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomic;
             socioEconomic.MonthlyIncome = decimal.Parse(stepContext.Result.ToString());
 
@@ -83,8 +88,10 @@ namespace Microsoft.BotBuilderSamples
                 return await stepContext.NextAsync(null, cancellationToken);
         }
 
-        private async Task<DialogTurnResult> StartMonthlyExpensesDialogStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        private async Task<DialogTurnResult> AskForMonthlyExpensesStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomic;
 
             if (!(stepContext.Result is null))
@@ -101,6 +108,19 @@ namespace Microsoft.BotBuilderSamples
 
             // save the User SocioEconomic data into the Conversation State
             await base.SetConversationState(stepContext.Context, socioEconomic, cancellationToken);
+
+            return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
+            {
+                Prompt = MessageFactory.Text("Agora eu preciso saber as suas despesas mensais ok?"),
+                RetryPrompt = MessageFactory.Text("Na verdade eu espero SIM ou NÃO como resposta!")
+            }, cancellationToken);
+        }
+
+        private async Task<DialogTurnResult> StartMonthlyExpensesDialogStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
+            if ((bool)stepContext.Result) { }
 
             // create family expense adaptive card
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "FamilyExpensesForm.json");

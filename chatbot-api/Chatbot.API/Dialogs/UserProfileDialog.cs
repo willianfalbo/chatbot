@@ -55,6 +55,8 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog        
         private async Task<DialogTurnResult> AskForAgreementStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_PROFILE_STEP] = new UserProfile();
 
@@ -68,6 +70,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForNameStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var userProfile = (UserProfile)stepContext.Values[USER_PROFILE_STEP];
             userProfile.AcceptedAgreement = (bool)stepContext.Result;
@@ -94,6 +98,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForEmailStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var userProfile = (UserProfile)stepContext.Values[USER_PROFILE_STEP];
             userProfile.Name = stepContext.Result?.ToString()?.TitleCase();
@@ -108,6 +114,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForAgeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Set the user's name to what they entered in response to the name prompt.
             var userProfile = (UserProfile)stepContext.Values[USER_PROFILE_STEP];
             userProfile.Email = stepContext.Result?.ToString()?.Trim();
@@ -128,6 +136,8 @@ namespace Microsoft.BotBuilderSamples
 
             if (userProfile.WantsToProvideAge)
             {
+                await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
                 var promptOptions = new PromptOptions
                 {
                     Prompt = MessageFactory.Text("Quantos anos você tem?"),

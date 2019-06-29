@@ -47,6 +47,8 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog
         private async Task<DialogTurnResult> AskForPersonsNameStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Continue using the same selection list, if any, from the previous iteration of this dialog.
             var listOfIncomes = stepContext.Options as List<FamilyIncome> ?? new List<FamilyIncome>();
             stepContext.Values[LIST_OF_INCOMES_STEP] = listOfIncomes;
@@ -62,12 +64,14 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForPersonsSourceOfIncomeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
             income.PersonsName = stepContext.Result.ToString().Trim().TitleCase();
 
             var promptOptions = new PromptOptions
             {
-                Prompt = MessageFactory.Text($"Qual é a fonte de renda do(a) {income.PersonsName}?"),
+                Prompt = MessageFactory.Text($"Qual é a fonte de renda de {income.PersonsName}?"),
                 RetryPrompt = MessageFactory.Text("A fonte de renda precisa ter apenas letras, contendo entre 3 e 100 caracteres.")
             };
             return await stepContext.PromptAsync(NAME_VALIDATION, promptOptions, cancellationToken);
@@ -75,12 +79,14 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForPersonsMonthlyIncomeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
             income.Source = stepContext.Result.ToString().Trim();
 
             var promptOptions = new PromptOptions
             {
-                Prompt = MessageFactory.Text($"Qual é o valor mensal da renda do(a) {income.PersonsName}?"),
+                Prompt = MessageFactory.Text($"Qual é o valor mensal da renda de {income.PersonsName}?"),
                 // RetryPrompt = MessageFactory.Text("Na verdade eu espero apenas números!")
             };
             return await stepContext.PromptAsync(MONTHLY_VALUE_VALIDATION, promptOptions, cancellationToken);
@@ -88,6 +94,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForAnotherIncomesStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
             income.Value = decimal.Parse(stepContext.Result.ToString());
 
@@ -96,7 +104,7 @@ namespace Microsoft.BotBuilderSamples
 
             return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
             {
-                Prompt = MessageFactory.Text("Você quer adicionar outra(s) pessoa(s)?"),
+                Prompt = MessageFactory.Text("Você quer adicionar outra pessoa?"),
                 RetryPrompt = MessageFactory.Text("Na verdade eu espero SIM ou NÃO como resposta!")
             }, cancellationToken);
         }

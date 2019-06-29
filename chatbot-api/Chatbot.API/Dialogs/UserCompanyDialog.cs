@@ -52,6 +52,8 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog
         private async Task<DialogTurnResult> AskForTaxIdentificationNumberStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_COMPANY_STEP] = new UserCompany();
 
@@ -68,6 +70,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForCheckingCompanyDetailsStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var company = (UserCompany)stepContext.Values[USER_COMPANY_STEP];
             company.TaxIdentificationNumber = stepContext.Result?.ToString()?.Trim();
@@ -169,8 +173,8 @@ namespace Microsoft.BotBuilderSamples
                 var cnpj = promptContext.Recognized.Value?.Trim()?.Replace('–', '-');
 
                 // if (cnpj.IsEqual(cnpj?.Digits('.', '/', '-')))
-                    if (cnpj.IsCnpjValid())
-                        valid = true;
+                if (cnpj.IsCnpjValid())
+                    valid = true;
             }
 
             return await Task.FromResult(valid);

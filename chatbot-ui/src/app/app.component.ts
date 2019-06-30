@@ -94,7 +94,7 @@ export class AppComponent implements AfterViewInit {
       monospaceFont: DEFAULT_FONT,
       primaryFont: DEFAULT_FONT,
       // avatar
-      botAvatarImage: 'https://azr-br-rg-bot-webui.azurewebsites.net/images/avatar/avatar-face2.png',
+      botAvatarImage: '/assets/img/avatar-face2.png',
       // userAvatarImage: '',
       bubbleBackground: 'rgba(88, 88, 88, 0.06)',
       bubbleFromUserBackground: 'rgba(56, 88, 205, 1)',

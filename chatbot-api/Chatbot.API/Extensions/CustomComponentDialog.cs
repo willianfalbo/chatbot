@@ -66,6 +66,7 @@ namespace Chatbot.API.Extensions
             await stateAccessor.SetAsync(context, content, cancellationToken);
         }
 
+        // https://www.microsoftpressstore.com/articles/article.aspx?p=2854377&seqNum=3
         protected async Task SendTypingActivity(ITurnContext context, CancellationToken cancellationToken)
         {
             // this bot is only handling messages

@@ -48,21 +48,26 @@ namespace Microsoft.BotBuilderSamples
 
             //TODO: wrap this up into the CustomComponentDialog
             var userStateAccessors = _userState.CreateProperty<UserPreference>(nameof(UserPreference));
-            var profile = await userStateAccessors.GetAsync(turnContext, () => new UserPreference());
+            var userPreference = await userStateAccessors.GetAsync(turnContext, () => new UserPreference());
 
             string input = turnContext.Activity.Text?.Trim();
             // await turnContext.SendActivityAsync(MessageFactory.Text($"Response {input}."), cancellationToken);
-            // await turnContext.SendActivityAsync(MessageFactory.Text($"UserHelpOption {profile.UserOption}."), cancellationToken);
+
+            //REMOVE
+            await turnContext.SendActivityAsync(MessageFactory.Text($"UserHelpOption {userPreference.UserOption}."), cancellationToken);
+            var p = await _userState.CreateProperty<UserProfile>(nameof(UserProfile)).GetAsync(turnContext, () => new UserProfile());
+            await turnContext.SendActivityAsync(MessageFactory.Text($"Name {p.Name}, Email {p.Email}, Age {p.Age}, AcceptedAgreement {p.AcceptedAgreement}, WantsToProvideAge {p.WantsToProvideAge}."), cancellationToken);
+            //REMOVE
 
             // check if user has given the expected option
-            if (string.IsNullOrWhiteSpace(profile.UserOption) && !string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrWhiteSpace(userPreference.UserOption) && !string.IsNullOrWhiteSpace(input))
             {
                 var option = UserPreference.ChatbotOptions().FirstOrDefault(opt => opt.IsEqual(input));
                 if (option != null)
-                    profile.UserOption = option;
+                    userPreference.UserOption = option;
             }
 
-            if (!string.IsNullOrWhiteSpace(profile.UserOption))
+            if (!string.IsNullOrWhiteSpace(userPreference.UserOption))
             {
                 // Run the Dialog with the new message Activity.
                 await _dialog.Run(turnContext, _conversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);

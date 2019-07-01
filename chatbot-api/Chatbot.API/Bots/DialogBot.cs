@@ -53,12 +53,6 @@ namespace Microsoft.BotBuilderSamples
             string input = turnContext.Activity.Text?.Trim();
             // await turnContext.SendActivityAsync(MessageFactory.Text($"Response {input}."), cancellationToken);
 
-            //REMOVE
-            await turnContext.SendActivityAsync(MessageFactory.Text($"UserHelpOption {userPreference.UserOption}."), cancellationToken);
-            var p = await _userState.CreateProperty<UserProfile>(nameof(UserProfile)).GetAsync(turnContext, () => new UserProfile());
-            await turnContext.SendActivityAsync(MessageFactory.Text($"Name {p.Name}, Email {p.Email}, Age {p.Age}, AcceptedAgreement {p.AcceptedAgreement}, WantsToProvideAge {p.WantsToProvideAge}."), cancellationToken);
-            //REMOVE
-
             // check if user has given the expected option
             if (string.IsNullOrWhiteSpace(userPreference.UserOption) && !string.IsNullOrWhiteSpace(input))
             {

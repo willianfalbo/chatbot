@@ -1,7 +1,7 @@
 using System.IO;
 using HandlebarsDotNet;
 
-namespace Chatbot.Common.Handlers
+namespace Chatbot.Common.Helpers
 {
     public static class TemplateHandler
     {

@@ -1,39 +1,24 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Chatbot.API.Extensions;
+using Chatbot.API.Helpers;
 using Chatbot.Common.Interfaces;
-using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 
 namespace Microsoft.BotBuilderSamples
 {
     public class MainDialog : CustomComponentDialog
     {
-        private readonly IAppSettings _appSettings;
-        private readonly IUserConversationManager _userConversationManager;
-        private readonly IMapper _mapper;
+        private readonly IDialogHelper _helper;
 
         public MainDialog(
-            IAppSettings appSettings,
-            UserState userState,
-            ConversationState conversationState,
-            ICompanyRegistryManager companyRegistryManager,
-            IUserConversationManager userConversationManager,
-            IMapper mapper)
-            : base(nameof(MainDialog), userState, conversationState)
+            IDialogHelper helper,
+            ICompanyRegistryManager companyRegistryManager)
+            : base(nameof(MainDialog))
         {
-            if (userState is null)
-                throw new System.ArgumentNullException(nameof(userState));
-            if (conversationState is null)
-                throw new System.ArgumentNullException(nameof(conversationState));
-            if (companyRegistryManager is null)
-                throw new System.ArgumentNullException(nameof(companyRegistryManager));
-            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            this._userConversationManager = userConversationManager ?? throw new System.ArgumentNullException(nameof(userConversationManager));
-            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
-            
-            AddDialog(new UserProfileDialog(appSettings, companyRegistryManager, userState, conversationState, userConversationManager, mapper));
+            this._helper = helper ?? throw new System.ArgumentNullException(nameof(helper));
+
+            AddDialog(new UserProfileDialog(helper, companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager))));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {

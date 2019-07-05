@@ -2,6 +2,7 @@
 using AutoMapper;
 using AutoMapper.Configuration;
 using Chatbot.API;
+using Chatbot.API.Helpers;
 using Chatbot.API.Mappings;
 using Chatbot.Common.Interfaces;
 using Chatbot.Manager;
@@ -117,6 +118,7 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton<ICompanyRegistryManager, CompanyRegistryManager>();
             services.AddSingleton<IDirectLineManager, DirectLineManager>();
             services.AddSingleton<IUserConversationManager, UserConversationManager>();
+            services.AddSingleton<IDialogHelper, DialogHelper>();
         }
     }
 }

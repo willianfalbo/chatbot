@@ -6,10 +6,10 @@ namespace Chatbot.Model.Manager
     public class UserConversation
     {
         public string UserId { get; set; }
-        public UserPreference UserPreference { get; set; }
-        public UserProfile UserProfile { get; set; }
-        public UserCompany UserCompany { get; set; }
-        public UserSocioEconomic UserSocioEconomic { get; set; }
+        public UserPreference UserPreference { get; set; } = new UserPreference();
+        public UserProfile UserProfile { get; set; } = new UserProfile();
+        public UserCompany UserCompany { get; set; } = new UserCompany();
+        public UserSocioEconomic UserSocioEconomic { get; set; } = new UserSocioEconomic();
     }
 
     public class UserPreference

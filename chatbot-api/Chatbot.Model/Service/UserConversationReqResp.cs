@@ -9,16 +9,16 @@ namespace Chatbot.Model.Service
         public string UserId { get; set; }
 
         [JsonProperty("userPreferences", NullValueHandling = NullValueHandling.Ignore)]
-        public UserPreferenceReqResp UserPreference { get; set; }
+        public UserPreferenceReqResp UserPreference { get; set; } = new UserPreferenceReqResp();
 
         [JsonProperty("userProfile", NullValueHandling = NullValueHandling.Ignore)]
-        public UserProfileReqResp UserProfile { get; set; }
+        public UserProfileReqResp UserProfile { get; set; } = new UserProfileReqResp();
 
         [JsonProperty("userCompany", NullValueHandling = NullValueHandling.Ignore)]
-        public UserCompanyReqResp UserCompany { get; set; }
+        public UserCompanyReqResp UserCompany { get; set; } = new UserCompanyReqResp();
 
         [JsonProperty("socioEconomic", NullValueHandling = NullValueHandling.Ignore)]
-        public UserSocioEconomicReqResp UserSocioEconomic { get; set; }
+        public UserSocioEconomicReqResp UserSocioEconomic { get; set; } = new UserSocioEconomicReqResp();
     }
 
     public class UserPreferenceReqResp

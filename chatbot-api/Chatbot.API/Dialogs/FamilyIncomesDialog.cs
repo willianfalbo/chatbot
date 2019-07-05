@@ -6,7 +6,7 @@ using Chatbot.API.DTO;
 using Chatbot.API.Extensions;
 using Chatbot.Common.Extensions;
 using System.Collections.Generic;
-using AutoMapper;
+using Chatbot.API.Helpers;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -18,17 +18,13 @@ namespace Microsoft.BotBuilderSamples
         private const string NAME_VALIDATION = "NAME_VALIDATION";
         private const string SOURCE_VALIDATION = "SOURCE_VALIDATION";
         private const string MONTHLY_VALUE_VALIDATION = "MONTHLY_VALUE_VALIDATION";
-        private readonly IMapper _mapper;
+        private readonly IDialogHelper _helper;
         #endregion
 
-        public FamilyIncomesDialog(UserState userState, ConversationState conversationState, IMapper mapper)
-            : base(nameof(FamilyIncomesDialog), userState, conversationState)
+        public FamilyIncomesDialog(IDialogHelper helper)
+            : base(nameof(FamilyIncomesDialog))
         {
-            if (userState is null)
-                throw new System.ArgumentNullException(nameof(userState));
-            if (conversationState is null)
-                throw new System.ArgumentNullException(nameof(conversationState));
-            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
+            this._helper = helper ?? throw new System.ArgumentNullException(nameof(helper));
 
             AddDialog(new TextPrompt(NAME_VALIDATION, NamePromptValidatorAsync));
             AddDialog(new TextPrompt(SOURCE_VALIDATION, SourcePromptValidatorAsync));
@@ -50,7 +46,7 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog
         private async Task<DialogTurnResult> AskForPersonsNameStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Continue using the same selection list, if any, from the previous iteration of this dialog.
             var listOfIncomes = stepContext.Options as List<FamilyIncomeDTO> ?? new List<FamilyIncomeDTO>();
@@ -67,7 +63,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForPersonsSourceOfIncomeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.PersonsName = stepContext.Result.ToString().Trim().TitleCase();
@@ -82,7 +78,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForPersonsMonthlyIncomeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.Source = stepContext.Result.ToString().Trim();
@@ -97,7 +93,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForAnotherIncomesStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.Value = decimal.Parse(stepContext.Result.ToString());
@@ -115,6 +111,13 @@ namespace Microsoft.BotBuilderSamples
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var listOfIncomes = stepContext.Values[LIST_OF_INCOMES_STEP] as List<FamilyIncomeDTO>;
+
+            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            conversation.UserSocioEconomic.FamilyIncomes = listOfIncomes;
+
+            // save conversation into the document db
+            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
+
             if ((bool)stepContext.Result)
                 return await stepContext.ReplaceDialogAsync(nameof(FamilyIncomesDialog), listOfIncomes, cancellationToken);
             else

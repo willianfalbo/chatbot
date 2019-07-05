@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Chatbot.API.DTO;
-using Chatbot.Common.Interfaces;
+using Chatbot.API.Helpers;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
@@ -13,12 +13,11 @@ namespace Microsoft.BotBuilderSamples
 {
     public class DialogAndWelcomeBot<T> : DialogBot<T> where T : Dialog
     {
-        private readonly IAppSettings _appSettings;
-        public DialogAndWelcomeBot(ConversationState conversationState, UserState userState, T dialog,
-        ILogger<DialogBot<T>> logger, IAppSettings appSettings)
-            : base(conversationState, userState, dialog, logger)
+        public DialogAndWelcomeBot(IDialogHelper dialogHelper, T dialog,
+        ILogger<DialogBot<T>> logger)
+            : base(dialogHelper, dialog, logger)
         {
-            _appSettings = appSettings;
+
         }
 
         protected override async Task OnMembersAddedAsync(
@@ -26,23 +25,27 @@ namespace Microsoft.BotBuilderSamples
             ITurnContext<IConversationUpdateActivity> turnContext,
             CancellationToken cancellationToken)
         {
+            await _helper.SendTypingActivity(turnContext, cancellationToken);
+
+            // save the UserID when the chat first start
+            // it is gonna be used to identify user conversation and save in document db
+            var conversation = await _helper.GetConversationState<UserConversationDTO>(turnContext, cancellationToken);
+            conversation.UserId = turnContext?.Activity?.From?.Id;
+
+            // if this user already has saved conversation in the database, we are going to use it
+            var currentConversation = await _helper._userConversationManager.GetAsync(conversation?.UserId);
+            if(currentConversation != null)
+                conversation = _helper._mapper.Map<UserConversationDTO>(currentConversation?.Value);
+            await _helper.SetConversationState<UserConversationDTO>(turnContext, conversation, cancellationToken);
+
             foreach (var member in membersAdded)
             {
-                // Greet anyone that was not the target (recipient) of this message.
-                // To learn more about Adaptive Cards, see https://aka.ms/msbot-adaptivecards for more details.
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    // await SendBotDutiesAsync(turnContext, cancellationToken);
                     await SendHelpSuggestionsCardAsync(turnContext, cancellationToken);
                 }
             }
         }
-
-        // private async Task SendBotDutiesAsync(ITurnContext turnContext, CancellationToken cancellationToken)
-        // {
-        //     var reply = MessageFactory.Text("Seja bem-vindo! Eu o seu novo Assistente Virtual.\nA minha função é ajudá-lo a obter o seu microcrédito de modo interativo.\n");
-        //     await turnContext.SendActivityAsync(reply, cancellationToken);
-        // }
 
         private async Task SendHelpSuggestionsCardAsync(ITurnContext turnContext, CancellationToken cancellationToken)
         {

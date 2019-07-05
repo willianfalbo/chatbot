@@ -11,7 +11,6 @@ using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using System.Linq;
 using Chatbot.API.Helpers;
-using AutoMapper;
 using Chatbot.Model.Manager;
 
 namespace Microsoft.BotBuilderSamples
@@ -21,30 +20,21 @@ namespace Microsoft.BotBuilderSamples
         #region Attributes
         private const string USER_COMPANY_STEP = "USER_COMPANY_STEP";
         private const string CNPJ_VALIDATION = "CNPJ_VALIDATION";
-        private readonly IAppSettings _appSettings;
+        private readonly IDialogHelper _helper;
         private readonly ICompanyRegistryManager _companyRegistryManager;
-        private readonly IMapper _mapper;
         #endregion
 
         public UserCompanyDialog(
-            IAppSettings appSettings, 
-            UserState userState, 
-            ConversationState conversationState, 
-            ICompanyRegistryManager companyRegistryManager,
-            IMapper mapper)
-            : base(nameof(UserCompanyDialog), userState, conversationState)
+            IDialogHelper helper,
+            ICompanyRegistryManager companyRegistryManager)
+            : base(nameof(UserCompanyDialog))
         {
-            if (userState is null)
-                throw new System.ArgumentNullException(nameof(userState));
-            if (conversationState is null)
-                throw new System.ArgumentNullException(nameof(conversationState));
-            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
+            this._helper = helper ?? throw new System.ArgumentNullException(nameof(helper));
             this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
-            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
-            
+
             AddDialog(new TextPrompt(CNPJ_VALIDATION, CnpjPromptValidatorAsync));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
-            AddDialog(new UserSocioEconomicDialog(appSettings, userState, conversationState, mapper));
+            AddDialog(new UserSocioEconomicDialog(helper));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -60,16 +50,16 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog
         private async Task<DialogTurnResult> AskForTaxIdentificationNumberStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_COMPANY_STEP] = new UserCompanyDTO();
 
-            var profile = await base.GetUserState<UserProfileDTO>(stepContext.Context);
+            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
 
             var promptOptions = new PromptOptions
             {
-                Prompt = MessageFactory.Text($"{profile.Name}, qual é o CNPJ da sua empresa?"),
+                Prompt = MessageFactory.Text($"{conversation?.UserProfile?.Name}, qual é o CNPJ da sua empresa?"),
                 RetryPrompt = MessageFactory.Text("Este não é um CNPJ válido! Tente novamente.")
             };
             // Ask the user to enter their name.
@@ -78,7 +68,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForCheckingCompanyDetailsStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var company = (UserCompanyDTO)stepContext.Values[USER_COMPANY_STEP];
@@ -96,10 +86,7 @@ namespace Microsoft.BotBuilderSamples
             }
             else
             {
-                foreach (var error in result.Errors)
-                    message += $"Erro: {error.Message} \n";
-
-                message += "\nInfelizmente eu encontrei alguns problemas.";
+                message += $"\nInfelizmente eu encontrei alguns problemas. Erros: {string.Join(", ", result.Errors)}";
                 message += "\nPor favor, preencha o formulário.";
             }
 
@@ -108,7 +95,7 @@ namespace Microsoft.BotBuilderSamples
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "UserCompanyForm.json");
 
             var data = UserCompanyFormData(result?.Value ?? new CompanyRegistry() { TaxIdentificationNumber = company.TaxIdentificationNumber });
-            var cardAttachment = base.CreateAdaptiveCardAttachment(filePath, data);
+            var cardAttachment = _helper.CreateAdaptiveCardAttachment(filePath, data);
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(cardAttachment),
@@ -123,7 +110,11 @@ namespace Microsoft.BotBuilderSamples
             userCompany = JsonConvert.DeserializeObject<UserCompanyDTO>(stepContext.Result?.ToString());
 
             // save the User Company data into the Conversation State
-            await base.SetConversationState(stepContext.Context, userCompany, cancellationToken);
+            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            conversation.UserCompany = userCompany;
+
+            // save conversation into the document db
+            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserSocioEconomicDialog), null, cancellationToken);
@@ -168,7 +159,7 @@ namespace Microsoft.BotBuilderSamples
                         ?.Select(i => i?.PartnerAdmin)
                         ?.ToList()
                     ),
-                WebUiAppUrl = _appSettings.WebUiAppUrl,
+                WebUiAppUrl = _helper._appSettings.WebUiAppUrl,
             };
         }
 

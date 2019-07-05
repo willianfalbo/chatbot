@@ -8,8 +8,8 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
-using AutoMapper;
 using Chatbot.Model.Manager;
+using Chatbot.API.Helpers;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -20,35 +20,21 @@ namespace Microsoft.BotBuilderSamples
         private const string NAME_VALIDATION = "NAME_VALIDATION";
         private const string EMAIL_VALIDATION = "EMAIL_VALIDATION";
         private const string AGE_VALIDATION = "AGE_VALIDATION";
-        private readonly IAppSettings _appSettings;
-        private readonly IUserConversationManager _userConversationManager;
-        private readonly IMapper _mapper;
-        #endregion 
+        private readonly IDialogHelper _helper;
+        #endregion
 
         public UserProfileDialog(
-            IAppSettings appSettings,
-            ICompanyRegistryManager companyRegistryManager,
-            UserState userState,
-            ConversationState conversationState,
-            IUserConversationManager userConversationManager,
-            IMapper mapper)
-            : base(nameof(UserProfileDialog), userState, conversationState)
+            IDialogHelper helper,
+            ICompanyRegistryManager companyRegistryManager)
+            : base(nameof(UserProfileDialog))
         {
-            this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            this._userConversationManager = userConversationManager ?? throw new System.ArgumentNullException(nameof(userConversationManager));
-            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
-            if (userState is null)
-                throw new System.ArgumentNullException(nameof(userState));
-            if (conversationState is null)
-                throw new System.ArgumentNullException(nameof(conversationState));
-            if (companyRegistryManager is null)
-                throw new System.ArgumentNullException(nameof(companyRegistryManager));
+            _helper = helper ?? throw new System.ArgumentNullException(nameof(helper));
 
             AddDialog(new TextPrompt(NAME_VALIDATION, NamePromptValidatorAsync));
             AddDialog(new TextPrompt(EMAIL_VALIDATION, EmailPromptValidatorAsync));
             AddDialog(new NumberPrompt<int>(AGE_VALIDATION, AgePromptValidatorAsync));
             AddDialog(new CustomConfirmPrompt(nameof(CustomConfirmPrompt)));
-            AddDialog(new UserCompanyDialog(appSettings, userState, conversationState, companyRegistryManager, mapper));
+            AddDialog(new UserCompanyDialog(helper, companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager))));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -67,7 +53,7 @@ namespace Microsoft.BotBuilderSamples
         #region Waterfall's Dialog        
         private async Task<DialogTurnResult> AskForAgreementStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_PROFILE_STEP] = new UserProfileDTO();
@@ -82,7 +68,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForNameStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var userProfile = (UserProfileDTO)stepContext.Values[USER_PROFILE_STEP];
@@ -110,7 +96,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForEmailStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Set the user's chatting confirmation to what they entered in response to the prompt.
             var userProfile = (UserProfileDTO)stepContext.Values[USER_PROFILE_STEP];
@@ -126,7 +112,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> AskForAgeStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await base.SendTypingActivity(stepContext.Context, cancellationToken);
+            await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Set the user's name to what they entered in response to the name prompt.
             var userProfile = (UserProfileDTO)stepContext.Values[USER_PROFILE_STEP];
@@ -148,7 +134,7 @@ namespace Microsoft.BotBuilderSamples
 
             if (userProfile.WantsToProvideAge)
             {
-                await base.SendTypingActivity(stepContext.Context, cancellationToken);
+                await _helper.SendTypingActivity(stepContext.Context, cancellationToken);
 
                 var promptOptions = new PromptOptions
                 {
@@ -171,16 +157,11 @@ namespace Microsoft.BotBuilderSamples
             userProfile.Age = (int)stepContext.Result;
 
             // save the User Profile data into the User State Conversation
-            await base.SetUserState(stepContext.Context, userProfile, cancellationToken);
+            var conversation = await this._helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            conversation.UserProfile = userProfile;
 
-
-
-            //REMOVE
-            var conversation = new UserConversationDTO() { UserProfile = userProfile };
-            await this._userConversationManager.SaveAsync(_mapper.Map<UserConversation>(conversation));
-            //REMOVE
-
-
+            // save conversation into the document db
+            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserCompanyDialog), userProfile, cancellationToken);
@@ -195,7 +176,7 @@ namespace Microsoft.BotBuilderSamples
 
         private ThumbnailCard GetDisagreementCard()
         {
-            var imageUrl = $"{_appSettings.WebUiAppUrl}/assets/img/avatar-yes.png";
+            var imageUrl = $"{_helper._appSettings.WebUiAppUrl}/assets/img/avatar-yes.png";
 
             var card = new ThumbnailCard
             {

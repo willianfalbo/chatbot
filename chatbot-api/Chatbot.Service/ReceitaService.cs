@@ -14,7 +14,7 @@ namespace Chatbot.Service
         public ReceitaService(IAppSettings appSettings) : base()
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-            base._accessToken = this._appSettings.ReceitaServiceToken;
+            // base._accessToken = this._appSettings.ReceitaServiceToken;
         }
 
         public async Task<ApiResponse<ReceitaServiceResponse, ReceitaServiceResponse>> SearchForCnpj(string cnpj) =>

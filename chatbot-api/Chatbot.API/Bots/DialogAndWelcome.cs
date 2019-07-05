@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.Models;
+using Chatbot.API.DTO;
 using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
@@ -49,7 +49,7 @@ namespace Microsoft.BotBuilderSamples
             var card = new ThumbnailCard();
             card.Subtitle = "Seja bem-vindo! Eu sou o seu novo Assistente Virtual.\nA minha função é ajudá-lo a obter o seu microcrédito de modo interativo. Como eu posso te ajudar?";
             card.Buttons =
-                UserPreference.ChatbotOptions().Select(option =>
+                UserPreferenceDTO.ChatbotOptions().Select(option =>
                     new CardAction(
                         ActionTypes.ImBack,
                         title: option,

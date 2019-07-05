@@ -1,21 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.Models;
+using Chatbot.API.DTO;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Chatbot.Common.Extensions;
 using System.Linq;
-using System;
 
 namespace Microsoft.BotBuilderSamples
 {
-    // This IBot implementation can run any type of Dialog. The use of type parameterization is to allows multiple different bots
-    // to be run at different endpoints within the same project. This can be achieved by defining distinct Controller types
-    // each with dependency on distinct IBot types, this way ASP Dependency Injection can glue everything together without ambiguity.
-    // The ConversationState is used by the Dialog system. The UserState isn't, however, it might have been used in a Dialog implementation,
-    // and the requirement is that all BotState objects are saved at the end of a turn.
     public class DialogBot<T> : ActivityHandler where T : Dialog
     {
         protected readonly BotState _userState;
@@ -23,7 +17,11 @@ namespace Microsoft.BotBuilderSamples
         protected readonly Dialog _dialog;
         protected readonly ILogger _logger;
 
-        public DialogBot(ConversationState conversationState, UserState userState, T dialog, ILogger<DialogBot<T>> logger)
+        public DialogBot(
+            ConversationState conversationState, 
+            UserState userState, 
+            T dialog, 
+            ILogger<DialogBot<T>> logger)
         {
             _conversationState = conversationState;
             _userState = userState;
@@ -47,8 +45,8 @@ namespace Microsoft.BotBuilderSamples
             _logger.LogInformation("Running dialog with Message Activity.");
 
             //TODO: wrap this up into the CustomComponentDialog
-            var userStateAccessors = _userState.CreateProperty<UserPreference>(nameof(UserPreference));
-            var userPreference = await userStateAccessors.GetAsync(turnContext, () => new UserPreference());
+            var userStateAccessors = _userState.CreateProperty<UserPreferenceDTO>(nameof(UserPreferenceDTO));
+            var userPreference = await userStateAccessors.GetAsync(turnContext, () => new UserPreferenceDTO());
 
             string input = turnContext.Activity.Text?.Trim();
             // await turnContext.SendActivityAsync(MessageFactory.Text($"Response {input}."), cancellationToken);
@@ -56,7 +54,7 @@ namespace Microsoft.BotBuilderSamples
             // check if user has given the expected option
             if (string.IsNullOrWhiteSpace(userPreference.UserOption) && !string.IsNullOrWhiteSpace(input))
             {
-                var option = UserPreference.ChatbotOptions().FirstOrDefault(opt => opt.IsEqual(input));
+                var option = UserPreferenceDTO.ChatbotOptions().FirstOrDefault(opt => opt.IsEqual(input));
                 if (option != null)
                     userPreference.UserOption = option;
             }

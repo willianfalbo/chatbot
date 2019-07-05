@@ -2,6 +2,7 @@
 using AutoMapper;
 using AutoMapper.Configuration;
 using Chatbot.API;
+using Chatbot.API.Mappings;
 using Chatbot.Common.Interfaces;
 using Chatbot.Manager;
 using Chatbot.Manager.Mappings;
@@ -78,11 +79,11 @@ namespace Microsoft.BotBuilderSamples
         {
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            var cfg = new MapperConfigurationExpression();
-            cfg.AddProfile<CompanyRegistryMappingProfile>();
-            cfg.AddProfile<DirectLineTokenMappingProfile>();
+            var config = new MapperConfigurationExpression();
+            config.AddProfile<ManagerMappingProfile>();
+            config.AddProfile<DTOMappingProfile>();
 
-            Mapper.Initialize(cfg);
+            Mapper.Initialize(config);
 
             Mapper.AssertConfigurationIsValid();
         }
@@ -115,6 +116,7 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton<IAppSettings, AppSettings>();
             services.AddSingleton<ICompanyRegistryManager, CompanyRegistryManager>();
             services.AddSingleton<IDirectLineManager, DirectLineManager>();
+            services.AddSingleton<IUserConversationManager, UserConversationManager>();
         }
     }
 }

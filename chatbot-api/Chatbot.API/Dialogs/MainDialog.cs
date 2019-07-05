@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using Chatbot.API.Extensions;
 using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder;
@@ -10,8 +11,16 @@ namespace Microsoft.BotBuilderSamples
     public class MainDialog : CustomComponentDialog
     {
         private readonly IAppSettings _appSettings;
+        private readonly IUserConversationManager _userConversationManager;
+        private readonly IMapper _mapper;
 
-        public MainDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
+        public MainDialog(
+            IAppSettings appSettings,
+            UserState userState,
+            ConversationState conversationState,
+            ICompanyRegistryManager companyRegistryManager,
+            IUserConversationManager userConversationManager,
+            IMapper mapper)
             : base(nameof(MainDialog), userState, conversationState)
         {
             if (userState is null)
@@ -21,8 +30,10 @@ namespace Microsoft.BotBuilderSamples
             if (companyRegistryManager is null)
                 throw new System.ArgumentNullException(nameof(companyRegistryManager));
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
-
-            AddDialog(new UserProfileDialog(appSettings, companyRegistryManager, userState, conversationState));
+            this._userConversationManager = userConversationManager ?? throw new System.ArgumentNullException(nameof(userConversationManager));
+            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
+            
+            AddDialog(new UserProfileDialog(appSettings, companyRegistryManager, userState, conversationState, userConversationManager, mapper));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {

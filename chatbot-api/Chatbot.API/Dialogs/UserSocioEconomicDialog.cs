@@ -2,16 +2,17 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.API.Models;
+using Chatbot.API.DTO;
 using Chatbot.API.Extensions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Bot.Schema;
-using Chatbot.API.Models.Util;
+using Chatbot.API.Helpers;
 using Newtonsoft.Json;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
+using AutoMapper;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -21,21 +22,26 @@ namespace Microsoft.BotBuilderSamples
         private const string USER_SOCIOECONOMIC_STEP = "USER_SOCIOECONOMIC_STEP";
         private const string MONTHLY_INCOME_VALIDATION = "MONTHLY_INCOME_VALIDATION";
         private readonly IAppSettings _appSettings;
+        private readonly IMapper _mapper;
         #endregion
 
-        public UserSocioEconomicDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState)
+        public UserSocioEconomicDialog(
+            IAppSettings appSettings, 
+            UserState userState, 
+            ConversationState conversationState,
+            IMapper mapper)
             : base(nameof(UserSocioEconomicDialog), userState, conversationState)
         {
             if (userState is null)
                 throw new System.ArgumentNullException(nameof(userState));
             if (conversationState is null)
                 throw new System.ArgumentNullException(nameof(conversationState));
-
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
+            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
 
             AddDialog(new NumberPrompt<decimal>(MONTHLY_INCOME_VALIDATION, MonthlyIncomePromptValidatorAsync));
             AddDialog(new CustomConfirmPrompt(nameof(CustomConfirmPrompt)));
-            AddDialog(new FamilyIncomesDialog(userState, conversationState));
+            AddDialog(new FamilyIncomesDialog(userState, conversationState, mapper));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
@@ -56,7 +62,7 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            stepContext.Values[USER_SOCIOECONOMIC_STEP] = new UserSocioEconomic();
+            stepContext.Values[USER_SOCIOECONOMIC_STEP] = new UserSocioEconomicDTO();
 
             var promptOptions = new PromptOptions
             {
@@ -70,7 +76,7 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomic;
+            var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomicDTO;
             socioEconomic.MonthlyIncome = decimal.Parse(stepContext.Result.ToString());
 
             return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
@@ -92,11 +98,11 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomic;
+            var socioEconomic = stepContext.Values[USER_SOCIOECONOMIC_STEP] as UserSocioEconomicDTO;
 
             if (!(stepContext.Result is null))
             {
-                socioEconomic.FamilyIncomes = stepContext.Result as List<FamilyIncome>;
+                socioEconomic.FamilyIncomes = stepContext.Result as List<FamilyIncomeDTO>;
 
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Obrigado por me ajudar. \nEu consegui registrar esses items abaixo:"), cancellationToken);
 
@@ -135,8 +141,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var socioEconomic = (UserSocioEconomic)stepContext.Values[USER_SOCIOECONOMIC_STEP];
-            socioEconomic.FamilyExpense = JsonConvert.DeserializeObject<FamilyExpense>(stepContext.Result?.ToString());
+            var socioEconomic = (UserSocioEconomicDTO)stepContext.Values[USER_SOCIOECONOMIC_STEP];
+            socioEconomic.FamilyExpense = JsonConvert.DeserializeObject<FamilyExpenseDTO>(stepContext.Result?.ToString());
 
             // save the User SocioEconomic data into the Conversation State
             await base.SetConversationState(stepContext.Context, socioEconomic, cancellationToken);
@@ -146,7 +152,7 @@ namespace Microsoft.BotBuilderSamples
         }
         #endregion
 
-        private object MonthlyIncomeDetails(UserSocioEconomic socioEconomic) =>
+        private object MonthlyIncomeDetails(UserSocioEconomicDTO socioEconomic) =>
             new
             {
                 MonthlyIncome = socioEconomic.MonthlyIncome.ToString("C"),
@@ -193,7 +199,7 @@ namespace Microsoft.BotBuilderSamples
             {
                 if (promptContext.Recognized.Value.IsJsonSchema())
                 {
-                    var form = JsonConvert.DeserializeObject<FamilyExpense>(promptContext.Recognized.Value);
+                    var form = JsonConvert.DeserializeObject<FamilyExpenseDTO>(promptContext.Recognized.Value);
 
                     var result = ModelValidator.IsValid(form);
 

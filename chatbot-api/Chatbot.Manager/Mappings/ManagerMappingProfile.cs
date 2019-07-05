@@ -6,9 +6,9 @@ using Chatbot.Model.Manager;
 
 namespace Chatbot.Manager.Mappings
 {
-    public class CompanyRegistryMappingProfile : Profile
+    public class ManagerMappingProfile : Profile
     {
-        public CompanyRegistryMappingProfile()
+        public ManagerMappingProfile()
         {
             CreateMap<ReceitaServiceResponse, CompanyRegistry>()
                 .ForMember(dest => dest.CompanyName, opts => opts.MapFrom(src => src.Nome.TitleCase()))
@@ -35,6 +35,17 @@ namespace Chatbot.Manager.Mappings
                     })
                     .ToList()
                 ));
+
+            CreateMap<DirectLineTokenResponse, DirectLineToken>();
+
+            //user conversation
+            CreateMap<UserPreferenceReqResp, UserPreference>().ReverseMap();
+            CreateMap<UserProfileReqResp, UserProfile>().ReverseMap();
+            CreateMap<UserCompanyReqResp, UserCompany>().ReverseMap();
+            CreateMap<FamilyIncomeReqResp, FamilyIncome>().ReverseMap();
+            CreateMap<FamilyExpenseReqResp, FamilyExpense>().ReverseMap();
+            CreateMap<UserSocioEconomicReqResp, UserSocioEconomic>().ReverseMap();
+            CreateMap<UserConversationReqResp, UserConversation>().ReverseMap();
         }
     }
 }

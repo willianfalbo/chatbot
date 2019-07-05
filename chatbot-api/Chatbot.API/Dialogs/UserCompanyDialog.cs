@@ -2,16 +2,17 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.API.Models;
+using Chatbot.API.DTO;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
 using System.IO;
 using Chatbot.API.Extensions;
 using Microsoft.Bot.Schema;
-using Chatbot.Model.Manager;
 using Newtonsoft.Json;
 using System.Linq;
-using Chatbot.API.Models.Util;
+using Chatbot.API.Helpers;
+using AutoMapper;
+using Chatbot.Model.Manager;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -22,9 +23,15 @@ namespace Microsoft.BotBuilderSamples
         private const string CNPJ_VALIDATION = "CNPJ_VALIDATION";
         private readonly IAppSettings _appSettings;
         private readonly ICompanyRegistryManager _companyRegistryManager;
+        private readonly IMapper _mapper;
         #endregion
 
-        public UserCompanyDialog(IAppSettings appSettings, UserState userState, ConversationState conversationState, ICompanyRegistryManager companyRegistryManager)
+        public UserCompanyDialog(
+            IAppSettings appSettings, 
+            UserState userState, 
+            ConversationState conversationState, 
+            ICompanyRegistryManager companyRegistryManager,
+            IMapper mapper)
             : base(nameof(UserCompanyDialog), userState, conversationState)
         {
             if (userState is null)
@@ -33,10 +40,11 @@ namespace Microsoft.BotBuilderSamples
                 throw new System.ArgumentNullException(nameof(conversationState));
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._companyRegistryManager = companyRegistryManager ?? throw new System.ArgumentNullException(nameof(companyRegistryManager));
-
+            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
+            
             AddDialog(new TextPrompt(CNPJ_VALIDATION, CnpjPromptValidatorAsync));
             AddDialog(new CustomAdaptiveCardPrompt(nameof(CustomAdaptiveCardPrompt), FormPromptValidatorAsync));
-            AddDialog(new UserSocioEconomicDialog(appSettings, userState, conversationState));
+            AddDialog(new UserSocioEconomicDialog(appSettings, userState, conversationState, mapper));
 
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]
             {
@@ -55,9 +63,9 @@ namespace Microsoft.BotBuilderSamples
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Create an object in which to collect the user's information within the dialog.
-            stepContext.Values[USER_COMPANY_STEP] = new UserCompany();
+            stepContext.Values[USER_COMPANY_STEP] = new UserCompanyDTO();
 
-            var profile = await base.GetUserState<UserProfile>(stepContext.Context);
+            var profile = await base.GetUserState<UserProfileDTO>(stepContext.Context);
 
             var promptOptions = new PromptOptions
             {
@@ -73,7 +81,7 @@ namespace Microsoft.BotBuilderSamples
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Set the user's chatting confirmation to what they entered in response to the prompt.
-            var company = (UserCompany)stepContext.Values[USER_COMPANY_STEP];
+            var company = (UserCompanyDTO)stepContext.Values[USER_COMPANY_STEP];
             company.TaxIdentificationNumber = stepContext.Result?.ToString()?.Trim();
 
             var result = await _companyRegistryManager.SearchForCnpj(company.TaxIdentificationNumber);
@@ -111,8 +119,8 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> StartUserSocioEconomicDialogStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var userCompany = (UserCompany)stepContext.Values[USER_COMPANY_STEP];
-            userCompany = JsonConvert.DeserializeObject<UserCompany>(stepContext.Result?.ToString());
+            var userCompany = (UserCompanyDTO)stepContext.Values[USER_COMPANY_STEP];
+            userCompany = JsonConvert.DeserializeObject<UserCompanyDTO>(stepContext.Result?.ToString());
 
             // save the User Company data into the Conversation State
             await base.SetConversationState(stepContext.Context, userCompany, cancellationToken);
@@ -187,7 +195,7 @@ namespace Microsoft.BotBuilderSamples
             {
                 if (promptContext.Recognized.Value.IsJsonSchema())
                 {
-                    var form = JsonConvert.DeserializeObject<UserCompany>(promptContext.Recognized.Value);
+                    var form = JsonConvert.DeserializeObject<UserCompanyDTO>(promptContext.Recognized.Value);
 
                     var result = ModelValidator.IsValid(form);
 

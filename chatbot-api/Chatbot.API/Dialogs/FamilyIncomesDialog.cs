@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.API.Models;
+using Chatbot.API.DTO;
 using Chatbot.API.Extensions;
 using Chatbot.Common.Extensions;
 using System.Collections.Generic;
+using AutoMapper;
 
 namespace Microsoft.BotBuilderSamples
 {
@@ -17,15 +18,17 @@ namespace Microsoft.BotBuilderSamples
         private const string NAME_VALIDATION = "NAME_VALIDATION";
         private const string SOURCE_VALIDATION = "SOURCE_VALIDATION";
         private const string MONTHLY_VALUE_VALIDATION = "MONTHLY_VALUE_VALIDATION";
+        private readonly IMapper _mapper;
         #endregion
 
-        public FamilyIncomesDialog(UserState userState, ConversationState conversationState)
+        public FamilyIncomesDialog(UserState userState, ConversationState conversationState, IMapper mapper)
             : base(nameof(FamilyIncomesDialog), userState, conversationState)
         {
             if (userState is null)
                 throw new System.ArgumentNullException(nameof(userState));
             if (conversationState is null)
                 throw new System.ArgumentNullException(nameof(conversationState));
+            this._mapper = mapper ?? throw new System.ArgumentNullException(nameof(mapper));
 
             AddDialog(new TextPrompt(NAME_VALIDATION, NamePromptValidatorAsync));
             AddDialog(new TextPrompt(SOURCE_VALIDATION, SourcePromptValidatorAsync));
@@ -50,9 +53,9 @@ namespace Microsoft.BotBuilderSamples
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
             // Continue using the same selection list, if any, from the previous iteration of this dialog.
-            var listOfIncomes = stepContext.Options as List<FamilyIncome> ?? new List<FamilyIncome>();
+            var listOfIncomes = stepContext.Options as List<FamilyIncomeDTO> ?? new List<FamilyIncomeDTO>();
             stepContext.Values[LIST_OF_INCOMES_STEP] = listOfIncomes;
-            stepContext.Values[CURRENT_INCOME_STEP] = new FamilyIncome();
+            stepContext.Values[CURRENT_INCOME_STEP] = new FamilyIncomeDTO();
 
             var promptOptions = new PromptOptions
             {
@@ -66,7 +69,7 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
+            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.PersonsName = stepContext.Result.ToString().Trim().TitleCase();
 
             var promptOptions = new PromptOptions
@@ -81,7 +84,7 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
+            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.Source = stepContext.Result.ToString().Trim();
 
             var promptOptions = new PromptOptions
@@ -96,10 +99,10 @@ namespace Microsoft.BotBuilderSamples
         {
             await base.SendTypingActivity(stepContext.Context, cancellationToken);
 
-            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncome;
+            var income = stepContext.Values[CURRENT_INCOME_STEP] as FamilyIncomeDTO;
             income.Value = decimal.Parse(stepContext.Result.ToString());
 
-            var listOfIncomes = stepContext.Values[LIST_OF_INCOMES_STEP] as List<FamilyIncome>;
+            var listOfIncomes = stepContext.Values[LIST_OF_INCOMES_STEP] as List<FamilyIncomeDTO>;
             listOfIncomes.Add(income);
 
             return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
@@ -111,7 +114,7 @@ namespace Microsoft.BotBuilderSamples
 
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var listOfIncomes = stepContext.Values[LIST_OF_INCOMES_STEP] as List<FamilyIncome>;
+            var listOfIncomes = stepContext.Values[LIST_OF_INCOMES_STEP] as List<FamilyIncomeDTO>;
             if ((bool)stepContext.Result)
                 return await stepContext.ReplaceDialogAsync(nameof(FamilyIncomesDialog), listOfIncomes, cancellationToken);
             else

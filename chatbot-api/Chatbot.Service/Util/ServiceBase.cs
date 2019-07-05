@@ -107,27 +107,32 @@ namespace Chatbot.Service.Util
             }
         }
 
-        public async Task<T> Put<T>(string uri, T input)
+        public async Task<ApiResponse<T, TError>> Put<T, TError>(string uri, object input, Hashtable customHeaders = null)
         {
             using (var httpClient = CreateHttpClient())
             {
-                var request = new HttpRequestMessage(HttpMethod.Put, uri)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(input), Encoding.UTF8, "application/json")
-                };
-                request.Properties["RequestTimeout"] = TimeSpan.FromSeconds(300);
+                if (customHeaders != null)
+                    AddCustomHeaders(httpClient, customHeaders);
 
-                try
+                var request =
+                    new StringContent(JsonConvert.SerializeObject(input), Encoding.UTF8, "application/json");
+
+                var retryPolicy = Policy
+                    .Handle<HttpRequestException>()
+                    .WaitAndRetryAsync(_pauseBetweenFailures);
+
+                var response = new HttpResponseMessage();
+                await retryPolicy.ExecuteAsync(async () =>
                 {
-                    var response = await httpClient.SendAsync(request);
-                    var results = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<T>(results);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+                    response = await httpClient.PutAsync(uri, request);
+                });
+
+                var content = await response.Content.ReadAsStringAsync();
+
+                return DeserializeAndCheck<T, TError>(
+                    response,
+                    content
+                );
             }
         }
 

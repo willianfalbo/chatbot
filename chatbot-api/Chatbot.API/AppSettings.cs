@@ -12,14 +12,17 @@ namespace Chatbot.API
             this._configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        public string ReceitaServiceApiUrl => this._configuration.GetValue<string>("ReceitaServiceUrl", null);
+        public string WebUiAppUrl => this._configuration.GetValue<string>("WebUiAppUrl", null);
 
+        // receita service
+        public string ReceitaServiceApiUrl => this._configuration.GetValue<string>("ReceitaServiceUrl", null);
         public string ReceitaServiceToken => this._configuration.GetValue<string>("ReceitaServiceToken", null);
 
-        public string WebUiAppUrl => this._configuration.GetValue<string>("WebUiAppUrl", null);        
-
+        // azure direct line
         public string AzureDirectLineSecret => this._configuration.GetValue<string>("AzureDirectLineSecret", null);
-
         public string AzureDirectLineGenerateTokenUrl => this._configuration.GetValue<string>("AzureDirectLineGenerateTokenUrl", null);
+
+        //document db - json server fake api
+        public string DocumentDbEndpointURI => this._configuration.GetValue<string>("DocumentDbEndpointURI", null);
     }
 }

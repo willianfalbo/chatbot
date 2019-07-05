@@ -21,7 +21,7 @@ namespace Microsoft.BotBuilderSamples
 
                 // Send a catch-all apology to the user.
                 // TODO: Change this message from english to portuguese
-                await turnContext.SendActivityAsync("Sorry, it looks like something went wrong.");
+                await turnContext.SendActivityAsync("Desculpe, parece que ocorreu um erro.");
 
                 if (conversationState != null)
                 {

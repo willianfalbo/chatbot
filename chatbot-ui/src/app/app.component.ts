@@ -1,8 +1,11 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, ɵConsole } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnInit } from '@angular/core';
+
+import { UserLocation } from './models/user-location.model';
+import { AzureChannelService } from './services/azure-channel.service';
+
 import { DirectLine, ConnectionStatus } from 'botframework-directlinejs';
 import { Guid } from 'guid-typescript';
 import * as ms from 'milliseconds';
-import { UserLocation } from './user-location.model';
 
 /**
  * Declares the WebChat property on the window object.
@@ -24,26 +27,38 @@ const USER_ID_NAME = 'userID';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements OnInit, AfterViewInit {
 
   @ViewChild('botWindow', { static: false }) botWindowElement: ElementRef;
   userId: string;
   userLocation: UserLocation = new UserLocation(null, null, false);
 
-  constructor() {
+  constructor(private dlService: AzureChannelService) {
     this.userId = this.getUserGuid();
+  }
+
+  ngOnInit(): void {
+    this.handleUserGeolocation();
   }
 
   ngAfterViewInit(): void {
 
-    this.handleUserGeolocation();
+    this.dlService.getDirectLineToken()
+      .subscribe(result => {
+        console.log('DIRECT LINE SERVICE RESULT: ', result);
+        this.renderWebChat();
+      }, error => {
+        console.error('DIRECT LINE SERVICE ERROR: ', error);
+      }, () => {
+        console.log('DIRECT LINE SERVICE COMPLETED');
+      });
 
+  }
+
+  private renderWebChat() {
     const dl = this.setupDirectLine();
-
     this.postJoinActivity(dl);
-
     this.listenToActivities(dl);
-
     this.monitorConnection(dl);
   }
 
@@ -116,7 +131,7 @@ export class AppComponent implements AfterViewInit {
     const styleOptions = this.styleOptionsSetup();
 
     const dl = new DirectLine({
-      secret: 'p0-7g3F6OQo.rLokJQ0_cfGLGeJgQzp-omxdNyIl5bJroSajSfOX9nc',
+      token: this.dlService.directLineToken.value.token,
       webSocket: true
     });
 
@@ -196,7 +211,7 @@ export class AppComponent implements AfterViewInit {
   private handleUserGeolocation() {
 
     const dataCachedTime = ms.minutes(1);
-    const waitingTime = ms.seconds(10);
+    const waitingTime = ms.seconds(15);
 
     if (navigator.geolocation) {
       // navigator.geolocation.getCurrentPosition(

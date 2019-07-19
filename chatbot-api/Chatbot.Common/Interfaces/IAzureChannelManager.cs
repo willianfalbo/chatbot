@@ -3,8 +3,8 @@ using Chatbot.Model.Manager;
 
 namespace Chatbot.Common.Interfaces
 {
-    public interface IDirectLineManager
+    public interface IAzureChannelManager
     {
-        Task<ManagerResponse<DirectLineToken>> GenerateToken();
+        Task<ManagerResponse<DirectLineToken>> DirectLineToken();
     }
 }

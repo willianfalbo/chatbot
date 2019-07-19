@@ -116,7 +116,7 @@ namespace Microsoft.BotBuilderSamples
             // custom classes
             services.AddSingleton<IAppSettings, AppSettings>();
             services.AddSingleton<ICompanyRegistryManager, CompanyRegistryManager>();
-            services.AddSingleton<IDirectLineManager, DirectLineManager>();
+            services.AddSingleton<IAzureChannelManager, AzureChannelManager>();
             services.AddSingleton<IUserConversationManager, UserConversationManager>();
             services.AddSingleton<IDialogHelper, DialogHelper>();
         }

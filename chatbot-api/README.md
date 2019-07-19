@@ -1,9 +1,12 @@
-# complex dialog sample
+# Overview
+This is a Chatbot wich uses Microsoft Botframework v4 tecnologies, including Cognitive Services and so on.
 
-This sample creates a complex conversation with dialogs.
+# Tecnologies:
 
+This project uses the following services:
 
-## Further reading
+- Direct Line Service
+- Receita WS Service
+# Database
 
-- [Azure Bot Service](https://docs.microsoft.com/azure/bot-service/bot-service-overview-introduction?view=azure-bot-service-4.0)
-- [Bot Storage](https://docs.microsoft.com/azure/bot-service/dotnet/bot-builder-dotnet-state?view=azure-bot-service-3.0&viewFallbackFrom=azure-bot-service-4.0)
+For this example, this project uses Json-Server as DataBase.

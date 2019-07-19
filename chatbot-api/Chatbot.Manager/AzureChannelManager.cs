@@ -7,22 +7,22 @@ using Chatbot.Service;
 
 namespace Chatbot.Manager
 {
-    public class DirectLineManager : IDirectLineManager
+    public class AzureChannelManager : IAzureChannelManager
     {
         private readonly IAppSettings _appSettings;
-        private readonly DirectLineService _directLineService;
+        private readonly AzureChannelService _azureChannelService;
         private readonly IMapper _mapper;
 
-        public DirectLineManager(IAppSettings appSettings, IMapper mapper)
+        public AzureChannelManager(IAppSettings appSettings, IMapper mapper)
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            this._directLineService = new DirectLineService(_appSettings);
+            this._azureChannelService = new AzureChannelService(_appSettings);
         }
 
-        public async Task<ManagerResponse<DirectLineToken>> GenerateToken()
+        public async Task<ManagerResponse<DirectLineToken>> DirectLineToken()
         {
-            var response = await _directLineService.GenerateToken();
+            var response = await _azureChannelService.DirectLineToken();
 
             if (response.HasError) //TODO: Check if this is correct
                 return new ManagerResponse<DirectLineToken>(response?.ErrorMessage); //TODO: wrapped up this into the Auto Mapper

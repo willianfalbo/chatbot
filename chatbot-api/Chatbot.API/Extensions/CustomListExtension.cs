@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Chatbot.Common.Extensions;
 
-namespace Chatbot.API.Extensions
+namespace Chatbot.Api.Extensions
 {
     public static class CustomListExtension
     {

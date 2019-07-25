@@ -3,7 +3,7 @@ using Chatbot.Common.Configuration;
 using Chatbot.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chatbot.API.Controllers
+namespace Chatbot.Api.Controllers
 {
     // api/azurechannel
     [Route("api/azurechannel")]

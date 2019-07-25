@@ -1,10 +1,10 @@
 ﻿using System;
 using AutoMapper;
-using Chatbot.API.Adapters;
-using Chatbot.API.Bots;
-using Chatbot.API.Dialogs;
-using Chatbot.API.Helpers;
-using Chatbot.API.Mappings;
+using Chatbot.Api.Adapters;
+using Chatbot.Api.Bots;
+using Chatbot.Api.Dialogs;
+using Chatbot.Api.Helpers;
+using Chatbot.Api.Mappings;
 using Chatbot.Common.Configuration;
 using Chatbot.Common.Interfaces;
 using Chatbot.Manager;
@@ -19,7 +19,7 @@ using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chatbot.API
+namespace Chatbot.Api
 {
     public class Startup
     {

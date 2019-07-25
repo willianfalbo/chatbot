@@ -2,13 +2,13 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.API.DTO;
-using Chatbot.API.Extensions;
+using Chatbot.Api.DTO;
+using Chatbot.Api.Extensions;
 using Chatbot.Common.Extensions;
 using System.Collections.Generic;
-using Chatbot.API.Helpers;
+using Chatbot.Api.Helpers;
 
-namespace Chatbot.API.Dialogs
+namespace Chatbot.Api.Dialogs
 {
     public class FamilyIncomesDialog : CustomComponentDialog
     {

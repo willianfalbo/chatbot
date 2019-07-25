@@ -3,16 +3,14 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Chatbot.API.DTO;
+using Chatbot.Api.DTO;
 using Chatbot.Common.Configuration;
 using Chatbot.Common.Helpers;
-using Chatbot.Common.Interfaces;
-using Chatbot.Model.Manager;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 
-namespace Chatbot.API.Helpers
+namespace Chatbot.Api.Helpers
 {
     public class DialogHelper : IDialogHelper
     {
@@ -108,11 +106,5 @@ namespace Chatbot.API.Helpers
             await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
-        public async Task SaveConversationDB(ITurnContext context, CancellationToken cancellationToken)
-        {
-            var conversation = await this.GetConversationState<UserConversationDTO>(context, cancellationToken);
-
-            await this._userConversationManager.SaveAsync(this._mapper.Map<UserConversation>(conversation));
-        }
     }
 }

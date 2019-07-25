@@ -1,6 +1,6 @@
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace Chatbot.API.Extensions
+namespace Chatbot.Api.Extensions
 {
     // Up to this point, microsoft hasn't raised the "AdaptiveCardPrompt" yet
     // so I needed to create my own AdaptiveCardPrompt as the below links

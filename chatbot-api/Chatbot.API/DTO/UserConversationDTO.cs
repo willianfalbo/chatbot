@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Chatbot.API.DTO
+namespace Chatbot.Api.DTO
 {
     public class UserConversationDTO
     {

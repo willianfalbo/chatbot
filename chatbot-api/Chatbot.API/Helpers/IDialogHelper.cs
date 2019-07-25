@@ -1,12 +1,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Chatbot.Api.DTO;
 using Chatbot.Common.Configuration;
-using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 
-namespace Chatbot.API.Helpers
+namespace Chatbot.Api.Helpers
 {
     public interface IDialogHelper
     {

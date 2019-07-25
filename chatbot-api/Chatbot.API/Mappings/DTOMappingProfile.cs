@@ -1,8 +1,8 @@
 using AutoMapper;
-using Chatbot.API.DTO;
+using Chatbot.Api.DTO;
 using Chatbot.Model.Manager;
 
-namespace Chatbot.API.Mappings
+namespace Chatbot.Api.Mappings
 {
     public class DTOMappingProfile : Profile
     {

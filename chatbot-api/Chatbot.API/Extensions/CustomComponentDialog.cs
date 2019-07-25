@@ -1,6 +1,6 @@
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace Chatbot.API.Extensions
+namespace Chatbot.Api.Extensions
 {
     public class CustomComponentDialog : ComponentDialog
     {

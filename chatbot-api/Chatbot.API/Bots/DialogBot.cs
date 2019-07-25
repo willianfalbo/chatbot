@@ -1,17 +1,17 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.DTO;
+using Chatbot.Api.DTO;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 using Chatbot.Common.Extensions;
 using System.Linq;
-using Chatbot.API.Helpers;
+using Chatbot.Api.Helpers;
 using System.IO;
 using System.Net;
 
-namespace Chatbot.API.Bots
+namespace Chatbot.Api.Bots
 {
     public class DialogBot<T> : ActivityHandler where T : Dialog
     {

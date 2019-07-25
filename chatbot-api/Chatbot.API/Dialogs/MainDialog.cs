@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.Extensions;
-using Chatbot.API.Helpers;
+using Chatbot.Api.Extensions;
+using Chatbot.Api.Helpers;
 using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace Chatbot.API.Dialogs
+namespace Chatbot.Api.Dialogs
 {
     public class MainDialog : CustomComponentDialog
     {

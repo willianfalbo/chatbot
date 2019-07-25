@@ -1,7 +1,7 @@
 ﻿using Chatbot.Common.Configuration;
 using Microsoft.Bot.Connector.Authentication;
 
-namespace Chatbot.API
+namespace Chatbot.Api
 {
     public class ConfigurationCredentialProvider : SimpleCredentialProvider
     {

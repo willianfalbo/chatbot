@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.Extensions;
-using Chatbot.API.DTO;
+using Chatbot.Api.Extensions;
+using Chatbot.Api.DTO;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
 using Chatbot.Model.Manager;
-using Chatbot.API.Helpers;
+using Chatbot.Api.Helpers;
 
-namespace Chatbot.API.Dialogs
+namespace Chatbot.Api.Dialogs
 {
     public class UserProfileDialog : CustomComponentDialog
     {

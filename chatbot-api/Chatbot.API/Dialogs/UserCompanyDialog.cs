@@ -2,18 +2,18 @@
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Chatbot.API.DTO;
+using Chatbot.Api.DTO;
 using Chatbot.Common.Extensions;
 using Chatbot.Common.Interfaces;
 using System.IO;
-using Chatbot.API.Extensions;
+using Chatbot.Api.Extensions;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using System.Linq;
-using Chatbot.API.Helpers;
+using Chatbot.Api.Helpers;
 using Chatbot.Model.Manager;
 
-namespace Chatbot.API.Dialogs
+namespace Chatbot.Api.Dialogs
 {
     public class UserCompanyDialog : CustomComponentDialog
     {

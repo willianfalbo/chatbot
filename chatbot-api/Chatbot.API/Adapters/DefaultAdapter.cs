@@ -6,7 +6,7 @@ using Microsoft.Bot.Builder.Solutions.Middleware;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace Chatbot.API.Adapters
+namespace Chatbot.Api.Adapters
 {
     public class DefaultAdapter : BotFrameworkHttpAdapter
     {

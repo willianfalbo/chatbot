@@ -5,7 +5,7 @@ using System.Threading;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 
-namespace Chatbot.API.Extensions
+namespace Chatbot.Api.Extensions
 {
     public class CustomConfirmPrompt : ConfirmPrompt
     {

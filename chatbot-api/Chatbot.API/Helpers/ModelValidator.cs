@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
-namespace Chatbot.API.Helpers
+namespace Chatbot.Api.Helpers
 {
     // this class was implemented based on this post
     // Manual Validation with Data Annotations

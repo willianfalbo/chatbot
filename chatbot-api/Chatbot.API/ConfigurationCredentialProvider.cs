@@ -1,12 +1,12 @@
-﻿using Microsoft.Bot.Connector.Authentication;
-using Microsoft.Extensions.Configuration;
+﻿using Chatbot.Common.Configuration;
+using Microsoft.Bot.Connector.Authentication;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API
 {
     public class ConfigurationCredentialProvider : SimpleCredentialProvider
     {
-        public ConfigurationCredentialProvider(IConfiguration configuration)
-            : base(configuration["MicrosoftAppId"], configuration["MicrosoftAppPassword"])
+        public ConfigurationCredentialProvider(AppSettings appSettings)
+            : base(appSettings.MicrosoftAppId, appSettings.MicrosoftAppPassword)
         {
         }
     }

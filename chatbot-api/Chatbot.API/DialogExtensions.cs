@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API
 {
     public static class DialogExtensions
     {

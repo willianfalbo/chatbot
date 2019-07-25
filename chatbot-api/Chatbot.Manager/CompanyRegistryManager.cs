@@ -5,16 +5,17 @@ using Chatbot.Common.Interfaces;
 using Chatbot.Common.Extensions;
 using Chatbot.Model.Manager;
 using Chatbot.Service;
+using Chatbot.Common.Configuration;
 
 namespace Chatbot.Manager
 {
     public class CompanyRegistryManager : ICompanyRegistryManager
     {
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly ReceitaService _receitaService;
         private readonly IMapper _mapper;
 
-        public CompanyRegistryManager(IAppSettings appSettings, IMapper mapper)
+        public CompanyRegistryManager(AppSettings appSettings, IMapper mapper)
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

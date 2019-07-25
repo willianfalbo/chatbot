@@ -11,7 +11,7 @@ using Chatbot.Common.Interfaces;
 using Chatbot.Model.Manager;
 using Chatbot.API.Helpers;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API.Dialogs
 {
     public class UserProfileDialog : CustomComponentDialog
     {
@@ -157,11 +157,8 @@ namespace Microsoft.BotBuilderSamples
             userProfile.Age = (int)stepContext.Result;
 
             // save the User Profile data into the User State Conversation
-            var conversation = await this._helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            var conversation = await _helper.UserAccessor.GetAsync(stepContext.Context, () => new UserConversationDTO());
             conversation.UserProfile = userProfile;
-
-            // save conversation into the document db
-            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserCompanyDialog), userProfile, cancellationToken);
@@ -176,7 +173,7 @@ namespace Microsoft.BotBuilderSamples
 
         private ThumbnailCard GetDisagreementCard()
         {
-            var imageUrl = $"{_helper._appSettings.WebUiAppUrl}/assets/img/avatar-yes.png";
+            var imageUrl = $"{_helper.AppSettings.WebUiAppUrl}/assets/img/avatar-yes.png";
 
             var card = new ThumbnailCard
             {

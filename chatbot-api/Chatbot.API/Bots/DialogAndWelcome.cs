@@ -2,14 +2,14 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Chatbot.API.DTO;
-using Chatbot.API.Helpers;
+using Chatbot.Api.DTO;
+using Chatbot.Api.Helpers;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.Api.Bots
 {
     public class DialogAndWelcomeBot<T> : DialogBot<T> where T : Dialog
     {
@@ -26,17 +26,6 @@ namespace Microsoft.BotBuilderSamples
             CancellationToken cancellationToken)
         {
             await _helper.SendTypingActivity(turnContext, cancellationToken);
-
-            // save the UserID when the chat first start
-            // it is gonna be used to identify user conversation and save in document db
-            var conversation = await _helper.GetConversationState<UserConversationDTO>(turnContext, cancellationToken);
-            conversation.UserId = turnContext?.Activity?.From?.Id;
-
-            // if this user already has saved conversation in the database, we are going to use it
-            var currentConversation = await _helper._userConversationManager.GetAsync(conversation?.UserId);
-            if(currentConversation != null)
-                conversation = _helper._mapper.Map<UserConversationDTO>(currentConversation?.Value);
-            await _helper.SetConversationState<UserConversationDTO>(turnContext, conversation, cancellationToken);
 
             foreach (var member in membersAdded)
             {

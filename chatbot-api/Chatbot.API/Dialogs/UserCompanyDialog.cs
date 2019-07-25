@@ -13,7 +13,7 @@ using System.Linq;
 using Chatbot.API.Helpers;
 using Chatbot.Model.Manager;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API.Dialogs
 {
     public class UserCompanyDialog : CustomComponentDialog
     {
@@ -55,7 +55,7 @@ namespace Microsoft.BotBuilderSamples
             // Create an object in which to collect the user's information within the dialog.
             stepContext.Values[USER_COMPANY_STEP] = new UserCompanyDTO();
 
-            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            var conversation = await _helper.UserAccessor.GetAsync(stepContext.Context, () => new UserConversationDTO());
 
             var promptOptions = new PromptOptions
             {
@@ -110,11 +110,8 @@ namespace Microsoft.BotBuilderSamples
             userCompany = JsonConvert.DeserializeObject<UserCompanyDTO>(stepContext.Result?.ToString());
 
             // save the User Company data into the Conversation State
-            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            var conversation = await _helper.UserAccessor.GetAsync(stepContext.Context, () => new UserConversationDTO());
             conversation.UserCompany = userCompany;
-
-            // save conversation into the document db
-            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             // begin the next dialog
             return await stepContext.BeginDialogAsync(nameof(UserSocioEconomicDialog), null, cancellationToken);
@@ -159,7 +156,7 @@ namespace Microsoft.BotBuilderSamples
                         ?.Select(i => i?.PartnerAdmin)
                         ?.ToList()
                     ),
-                WebUiAppUrl = _helper._appSettings.WebUiAppUrl,
+                WebUiAppUrl = _helper.AppSettings.WebUiAppUrl,
             };
         }
 

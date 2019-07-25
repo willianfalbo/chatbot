@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using Chatbot.Common.Configuration;
 using Chatbot.Common.Interfaces;
 using Chatbot.Model.Manager;
 using Chatbot.Service;
@@ -9,11 +10,11 @@ namespace Chatbot.Manager
 {
     public class AzureChannelManager : IAzureChannelManager
     {
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly AzureChannelService _azureChannelService;
         private readonly IMapper _mapper;
 
-        public AzureChannelManager(IAppSettings appSettings, IMapper mapper)
+        public AzureChannelManager(AppSettings appSettings, IMapper mapper)
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             this._mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

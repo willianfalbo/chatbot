@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
+using Chatbot.Common.Configuration;
 using Chatbot.Common.Interfaces;
 using Chatbot.Model.Manager;
 using Chatbot.Model.Service;
@@ -11,11 +12,11 @@ namespace Chatbot.Manager
 {
     public class UserConversationManager : IUserConversationManager
     {
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly UserConversationService _userConversationService;
         private readonly IMapper _mapper;
 
-        public UserConversationManager(IAppSettings appSettings, IMapper mapper)
+        public UserConversationManager(AppSettings appSettings, IMapper mapper)
         {
             this._appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
             this._mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

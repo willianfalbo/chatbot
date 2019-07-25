@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Chatbot.Common.Interfaces;
+using Chatbot.Common.Configuration;
 using Chatbot.Model.Service;
 using Chatbot.Service.Util;
 
@@ -9,9 +9,9 @@ namespace Chatbot.Service
     {
         protected override bool _supportGzipCompression => false;
         protected override bool _supportBearerToken => false;
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
 
-        public UserConversationService(IAppSettings appSettings) : base()
+        public UserConversationService(AppSettings appSettings) : base()
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
             // base._accessToken = appSettings.TOKEN;

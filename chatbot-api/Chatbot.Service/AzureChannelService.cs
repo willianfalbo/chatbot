@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Chatbot.Common.Interfaces;
+using Chatbot.Common.Configuration;
 using Chatbot.Model.Service;
 using Chatbot.Service.Util;
 
@@ -9,9 +9,9 @@ namespace Chatbot.Service
     {
         protected override bool _supportGzipCompression => false;
         protected override bool _supportBearerToken => true;
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
 
-        public AzureChannelService(IAppSettings appSettings) : base()
+        public AzureChannelService(AppSettings appSettings) : base()
         {
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));
         }

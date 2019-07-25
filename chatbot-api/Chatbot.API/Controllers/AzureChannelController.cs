@@ -1,18 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Chatbot.Common.Configuration;
 using Chatbot.Common.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API.Controllers
 {
     // api/azurechannel
     [Route("api/azurechannel")]
     [ApiController]
     public class AzureChannelController : ControllerBase
     {
-        private readonly IAppSettings _appSettings;
+        private readonly AppSettings _appSettings;
         private readonly IAzureChannelManager _azureChannelManager;
-        public AzureChannelController(IAppSettings appSettings, IAzureChannelManager azureChannelManager)
+        public AzureChannelController(AppSettings appSettings, IAzureChannelManager azureChannelManager)
         {
             this._azureChannelManager = azureChannelManager ?? throw new System.ArgumentNullException(nameof(azureChannelManager));
             this._appSettings = appSettings ?? throw new System.ArgumentNullException(nameof(appSettings));

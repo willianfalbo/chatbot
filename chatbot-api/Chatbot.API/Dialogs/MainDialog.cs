@@ -5,7 +5,7 @@ using Chatbot.API.Helpers;
 using Chatbot.Common.Interfaces;
 using Microsoft.Bot.Builder.Dialogs;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API.Dialogs
 {
     public class MainDialog : CustomComponentDialog
     {

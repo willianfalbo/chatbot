@@ -12,7 +12,7 @@ using Chatbot.API.Helpers;
 using Newtonsoft.Json;
 using Chatbot.Common.Extensions;
 
-namespace Microsoft.BotBuilderSamples
+namespace Chatbot.API.Dialogs
 {
     public class UserSocioEconomicDialog : CustomComponentDialog
     {
@@ -101,11 +101,8 @@ namespace Microsoft.BotBuilderSamples
             }
 
             // save the User SocioEconomic data into the Conversation State
-            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            var conversation = await _helper.UserAccessor.GetAsync(stepContext.Context, () => new UserConversationDTO());
             conversation.UserSocioEconomic = socioEconomic;
-
-            // save conversation into the document db
-            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             return await stepContext.PromptAsync(nameof(CustomConfirmPrompt), new PromptOptions
             {
@@ -122,7 +119,7 @@ namespace Microsoft.BotBuilderSamples
 
             // create family expense adaptive card
             var filePath = Path.Combine(".", "Resources", "AdaptiveCard", "FamilyExpensesForm.json");
-            var familyExpenseFormCardAttachment = _helper.CreateAdaptiveCardAttachment(filePath, new { WebUiAppUrl = _helper._appSettings.WebUiAppUrl });
+            var familyExpenseFormCardAttachment = _helper.CreateAdaptiveCardAttachment(filePath, new { WebUiAppUrl = _helper.AppSettings.WebUiAppUrl });
             var promptOptions = new PromptOptions
             {
                 Prompt = (Activity)MessageFactory.Attachment(familyExpenseFormCardAttachment),
@@ -137,11 +134,8 @@ namespace Microsoft.BotBuilderSamples
             socioEconomic.FamilyExpense = JsonConvert.DeserializeObject<FamilyExpenseDTO>(stepContext.Result?.ToString());
 
             // save the User SocioEconomic data into the Conversation State
-            var conversation = await _helper.GetConversationState<UserConversationDTO>(stepContext.Context, cancellationToken);
+            var conversation = await _helper.UserAccessor.GetAsync(stepContext.Context, () => new UserConversationDTO());
             conversation.UserSocioEconomic = socioEconomic;
-
-            // save conversation into the document db
-            await this._helper.SaveConversationDB(stepContext.Context, cancellationToken);
 
             // Exit the dialog, returning the collected data information
             return await stepContext.EndDialogAsync(stepContext.Values[USER_SOCIOECONOMIC_STEP], cancellationToken);
@@ -160,7 +154,7 @@ namespace Microsoft.BotBuilderSamples
                 }),
                 TotalFamilyIncome = socioEconomic.TotalFamilyIncome.ToString("C"),
                 TotalMonthlyIncome = socioEconomic.TotalMonthlyIncome.ToString("C"),
-                WebUiAppUrl = _helper._appSettings.WebUiAppUrl,
+                WebUiAppUrl = _helper.AppSettings.WebUiAppUrl,
             };
 
         #region Validators

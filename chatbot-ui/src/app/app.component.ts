@@ -211,14 +211,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   private handleUserGeolocation() {
 
     const dataCachedTime = ms.minutes(1);
-    const waitingTime = ms.seconds(15);
+    // const waitingTime = ms.seconds(15);
 
     if (navigator.geolocation) {
       // navigator.geolocation.getCurrentPosition(
       navigator.geolocation.watchPosition(
         this.geoSuccess.bind(this),
         this.geoError.bind(this),
-        { enableHighAccuracy: true, maximumAge: dataCachedTime, timeout: waitingTime }
+        { enableHighAccuracy: true, maximumAge: dataCachedTime, /*timeout: waitingTime*/ }
       );
     } else {
       // Geolocation is not supported by this browser.
